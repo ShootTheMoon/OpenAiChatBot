@@ -8,7 +8,6 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const generate = async (input) => {
-  console.log("ping");
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     prompt: input,

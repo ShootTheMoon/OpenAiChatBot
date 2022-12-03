@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 //Webhook
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://d657-2601-589-4d80-16d0-c17a-1adf-e13e-5716.ngrok.io";
+  serverUrl = "https://e6b3-2601-589-4d80-16d0-c17a-1adf-e13e-5716.ngrok.io";
 }
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const URI = `/app4/${TOKEN}`;
@@ -33,9 +33,13 @@ app.post(URI, async (req, res) => {
         const question = command.slice(5);
         if (question == "test" || question == "test?") {
           sendMessage(TELEGRAM_API, chatId, "*What exactly are you testing?*", messageId);
+        } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
+          sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad", messageId);
         } else if (question) {
           generate(question).then((response) => sendMessage(TELEGRAM_API, chatId, response, messageId));
         }
+      } else if (command.split(" ")[0] == "/start") {
+        sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement and watch the magic happen!*\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
       }
     }
   } catch (err) {
