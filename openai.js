@@ -27,6 +27,7 @@ app.post(URI, async (req, res) => {
   try {
     if (req.body.message.chat) {
       const chatId = req.body.message.chat.id;
+      console.log(chatId);
       const command = req.body.message.text;
       const messageId = req.body.message.message_id;
       if (command.split(" ")[0] == "/ask") {
