@@ -27,7 +27,6 @@ app.post(URI, async (req, res) => {
   try {
     if (req.body.message.chat) {
       const chatId = req.body.message.chat.id;
-      console.log(chatId);
       const command = req.body.message.text;
       const messageId = req.body.message.message_id;
 
@@ -46,14 +45,16 @@ app.post(URI, async (req, res) => {
         }
       } else if (command.split(" ")[0].toLowerCase() == "/aski") {
         const question = command.slice(6);
-        generateImage(question).then((response) => {
-          if (response != false) {
-            console.log(response);
-            sendPhoto(TELEGRAM_API, chatId, response, `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
-          } else {
-            sendMessage(TELEGRAM_API, chatId, `*No*\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
-          }
-        });
+        if (question) {
+          generateImage(question).then((response) => {
+            if (response != false) {
+              console.log(response);
+              sendPhoto(TELEGRAM_API, chatId, response, `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+            } else {
+              sendMessage(TELEGRAM_API, chatId, `*No*\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+            }
+          });
+        }
       } else if (command.split(" ")[0].toLowerCase() == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
       }
