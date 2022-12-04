@@ -30,7 +30,8 @@ app.post(URI, async (req, res) => {
       console.log(chatId);
       const command = req.body.message.text;
       const messageId = req.body.message.message_id;
-      if (command.split(" ")[0] == "/ask") {
+
+      if (command.split(" ")[0].toLowerCase() == "/ask") {
         const question = command.slice(5);
         if (question == "test" || question == "test?") {
           sendMessage(TELEGRAM_API, chatId, "*What exactly are you testing?*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
@@ -43,7 +44,7 @@ app.post(URI, async (req, res) => {
             }
           });
         }
-      } else if (command.split(" ")[0] == "/aski") {
+      } else if (command.split(" ")[0].toLowerCase() == "/aski") {
         const question = command.slice(6);
         generateImage(question).then((response) => {
           if (response != false) {
@@ -53,7 +54,7 @@ app.post(URI, async (req, res) => {
             sendMessage(TELEGRAM_API, chatId, `*No*\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
           }
         });
-      } else if (command.split(" ")[0] == "/start") {
+      } else if (command.split(" ")[0].toLowerCase() == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
       }
     }
