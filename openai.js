@@ -37,7 +37,11 @@ app.post(URI, async (req, res) => {
         } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
           sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad \n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
         } else if (question) {
-          generate(question).then((response) => sendMessage(TELEGRAM_API, chatId, `${response}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId));
+          generate(question).then((response) => {
+            if (response != false) {
+              sendMessage(TELEGRAM_API, chatId, `${response}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+            }
+          });
         }
       } else if (command.split(" ")[0] == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement and watch the magic happen!*\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);

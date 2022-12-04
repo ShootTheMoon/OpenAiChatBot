@@ -8,16 +8,21 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const generate = async (input) => {
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: input,
-    temperature: 1,
-    max_tokens: 2056,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
-  return response.data.choices[0].text;
+  try {
+    const response = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: input,
+      temperature: 1,
+      max_tokens: 2056,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+    });
+    return response.data.choices[0].text;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };
 
 module.exports = { generate };
