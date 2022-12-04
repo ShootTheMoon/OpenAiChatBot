@@ -33,7 +33,7 @@ function sendMessage(api, chat, msg, msgID, button) {
       });
   }
 }
-function sendPhoto(api, chat, image, text, button, msgID) {
+function sendPhoto(api, chat, image, text, msgID, button) {
   if (button) {
     axios
       .post(`${api}/sendPhoto`, {
@@ -55,15 +55,15 @@ function sendPhoto(api, chat, image, text, button, msgID) {
         },
       })
       .catch((err) => {
-        console.log(err.data);
+        console.log(err);
         sendMessage(api, chat, "*Please try again later*", msgID);
       });
   } else {
     axios
       .post(`${api}/sendPhoto`, {
         chat_id: chat,
-        photo: photo,
-        caption: caption,
+        photo: image,
+        caption: text,
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
         parse_mode: "Markdown",

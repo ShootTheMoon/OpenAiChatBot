@@ -8,8 +8,8 @@ const bodyParser = require("body-parser");
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
 // Function Imports
-const { generate } = require("./utils/generate");
-const { sendMessage } = require("./utils/sendResponse");
+const { generateImage, generateText } = require("./utils/generate");
+const { sendMessage, sendPhoto } = require("./utils/sendResponse");
 //Express
 const app = express();
 app.use(bodyParser.json());
@@ -37,14 +37,24 @@ app.post(URI, async (req, res) => {
         } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
           sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad \n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
         } else if (question) {
-          generate(question).then((response) => {
+          generateText(question).then((response) => {
             if (response != false) {
               sendMessage(TELEGRAM_API, chatId, `${response}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
             }
           });
         }
+      } else if (command.split(" ")[0] == "/aski") {
+        const question = command.slice(6);
+        generateImage(question).then((response) => {
+          if (response != false) {
+            console.log(response);
+            sendPhoto(TELEGRAM_API, chatId, response, `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+          } else {
+            sendMessage(TELEGRAM_API, chatId, `*No*\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+          }
+        });
       } else if (command.split(" ")[0] == "/start") {
-        sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement and watch the magic happen!*\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
+        sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
       }
     }
   } catch (err) {
