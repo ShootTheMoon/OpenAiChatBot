@@ -33,6 +33,7 @@ const generateImage = async (input) => {
     });
     return response.data.data[0].url;
   } catch (err) {
+    console.log(err);
     return false;
   }
 };
