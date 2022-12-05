@@ -57,8 +57,8 @@ app.post(URI, async (req, res) => {
           sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad \n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
         } else if (question) {
           generateText(question).then((response) => {
-            if (response != false) {
-              sendMessage(TELEGRAM_API, chatId, `${response}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+            if (response[0] != false) {
+              sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
             }
           });
         }
@@ -67,11 +67,14 @@ app.post(URI, async (req, res) => {
         collectChatData(req.body.message.chat);
         if (question) {
           generateImage(question).then((response) => {
-            if (response != false) {
-              console.log(response);
-              sendPhoto(TELEGRAM_API, chatId, response, `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+            if (response[0] != false) {
+              console.log(response[0]);
+              if (response[1] === "image") {
+                sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+              } else {
+                sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+              }
             } else {
-              sendMessage(TELEGRAM_API, chatId, `*No*\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
             }
           });
         }
