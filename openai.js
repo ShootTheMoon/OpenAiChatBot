@@ -5,6 +5,7 @@ const axios = require("axios");
 const bodyParser = require("body-parser");
 
 const moonsId = 2056782424;
+const footerText = "[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff)";
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
@@ -36,16 +37,16 @@ app.post(URI, async (req, res) => {
       if (command.split(" ")[0].toLowerCase() == "/ask") {
         const question = command.slice(5);
         if (chatHandler(req.body.message.chat) === false) {
-          sendMessage(TELEGRAM_API, chatId, "*Request are limited to 1 request per 15 seconds for the time being.*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+          sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 15 seconds for the time being.*\n\n${footerText}`, messageId);
         } else {
           if (question == "test" || question == "test?") {
-            sendMessage(TELEGRAM_API, chatId, "*What exactly are you testing?*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+            sendMessage(TELEGRAM_API, chatId, `*What exactly are you testing?*\n\n${footerText}`, messageId);
           } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
-            sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad \n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+            sendMessage(TELEGRAM_API, chatId, `The Open Ai ERC20 dev is a based chad \n\n${footerText}`, messageId);
           } else if (question) {
             generateText(question).then((response) => {
               if (response[0] != false) {
-                sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+                sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n${footerText}`, messageId);
               }
             });
           }
@@ -53,16 +54,16 @@ app.post(URI, async (req, res) => {
       } else if (command.split(" ")[0].toLowerCase() == "/aski") {
         const question = command.slice(6);
         if (chatHandler(req.body.message.chat) === false) {
-          sendMessage(TELEGRAM_API, chatId, "*Request are limited to 1 request per 15 seconds for the time being.*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+          sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 15 seconds for the time being.*\n\n${footerText}`, messageId);
         } else {
           if (question) {
             generateImage(question).then((response) => {
               if (response[0] != false) {
                 console.log(response[0]);
                 if (response[1] === "image") {
-                  sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+                  sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n${footerText}`, messageId, false);
                 } else {
-                  sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+                  sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n${footerText}`, messageId);
                 }
               } else {
               }

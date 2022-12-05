@@ -9,6 +9,7 @@ function sendMessage(api, chat, msg, msgID, button) {
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
         parse_mode: "Markdown",
+        disable_web_page_preview: true,
         inline_keyboard: [
           [
             {
@@ -26,6 +27,7 @@ function sendMessage(api, chat, msg, msgID, button) {
         text: msg,
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
+        disable_web_page_preview: true,
         parse_mode: "Markdown",
       })
       .catch((err) => {
@@ -42,6 +44,7 @@ function sendPhoto(api, chat, image, text, msgID, button) {
         caption: text,
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
+        disable_web_page_preview: true,
         parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: [
@@ -66,6 +69,7 @@ function sendPhoto(api, chat, image, text, msgID, button) {
         caption: text,
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
+        disable_web_page_preview: true,
         parse_mode: "Markdown",
       })
       .catch((err) => console.log(err));
@@ -80,6 +84,7 @@ function sendVideo(api, chat, video, text, button, msgID) {
         caption: text,
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
+        disable_web_page_preview: true,
         parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: [
@@ -104,6 +109,7 @@ function sendVideo(api, chat, video, text, button, msgID) {
         caption: text,
         reply_to_message_id: msgID ? msgID : false,
         allow_sending_without_reply: true,
+        disable_web_page_preview: true,
         parse_mode: "Markdown",
       })
       .catch((err) => console.log(err));
