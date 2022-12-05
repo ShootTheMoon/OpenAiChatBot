@@ -9,7 +9,7 @@ const openai = new OpenAIApi(configuration);
 
 const generateText = async (input) => {
   try {
-    const filter = await moderationFilter(input);
+    const filter = false;
     if (filter === false) {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -31,7 +31,7 @@ const generateText = async (input) => {
 
 const generateImage = async (input) => {
   try {
-    const filter = await moderationFilter(input);
+    const filter = false;
     if (filter == -false) {
       const response = await openai.createImage({
         prompt: input,
@@ -53,6 +53,7 @@ const moderationFilter = async (text) => {
     const response = await openai.createModeration({
       input: text,
     });
+    console.log(response);
     return response.data.results[0].flagged;
   } catch (err) {
     console.log(err.toJSON);
