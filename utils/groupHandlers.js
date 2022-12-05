@@ -39,4 +39,26 @@ const updatePrivate = (found, username) => {
   fs.writeFileSync("./groupData.json", JSON.stringify(data));
 };
 
-module.exports = { addNewGroup, addNewPrivate };
+const getMetrics = () => {
+  let data = fs.readFileSync("./groupData.json", "utf-8");
+  data = JSON.parse(data);
+  let text = "";
+  let requests = 0;
+  let numOfGroups = 0;
+  for (let i = 0; i < data.groups.length; i++) {
+    requests += data.groups[i].request;
+    numOfGroups += 1;
+    text += `*Name:* ${data.groups[i].name} - *Requests:* ${data.groups[i].request}\n`;
+  }
+  text += `\n*Number of groups:* ${numOfGroups} *Total requests:* ${requests} \n\n`;
+
+  //   for (let i = 0; i < data.private.length; i++) {
+  //     requests += data.private[i].request;
+  //     numOfPrivate += 1;
+  //     text += `Name: ${data.groups[i].name} - Requests: ${data.groups[i].request}\n`;
+  //   }
+  //   text += `Number of groups: ${numOfGroups} Total requests: ${requests}`;
+  return text;
+};
+
+module.exports = { getMetrics, addNewGroup, addNewPrivate };

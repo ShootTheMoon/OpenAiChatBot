@@ -4,13 +4,15 @@ const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
 
+const moonsId = 2056782424;
+
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
 const { sendMessage, sendPhoto } = require("./utils/sendResponse");
-const { addNewPrivate, addNewGroup } = require("./utils/groupHandlers");
+const { addNewPrivate, addNewGroup, getMetrics } = require("./utils/groupHandlers");
 //Express
 const app = express();
 app.use(bodyParser.json());
@@ -42,11 +44,10 @@ const collectChatData = (chat) => {
 app.post(URI, async (req, res) => {
   try {
     if (req.body.message.chat) {
-      collectChatData(req.body.message.chat);
       const chatId = req.body.message.chat.id;
       const command = req.body.message.text;
       const messageId = req.body.message.message_id;
-
+      const id = req.body.message.from.id;
       if (command.split(" ")[0].toLowerCase() == "/ask") {
         const question = command.slice(5);
         collectChatData(req.body.message.chat);
@@ -76,6 +77,9 @@ app.post(URI, async (req, res) => {
         }
       } else if (command.split(" ")[0].toLowerCase() == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
+      } else if (command.split(" ")[0].toLowerCase() == "/metrics" && id === moonsId) {
+        const text = getMetrics();
+        sendMessage(TELEGRAM_API, chatId, text, messageId);
       }
     }
   } catch (err) {
