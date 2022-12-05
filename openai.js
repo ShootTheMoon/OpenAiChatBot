@@ -12,7 +12,7 @@ const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
 const { sendMessage, sendPhoto } = require("./utils/sendResponse");
-const { addNewPrivate, addNewGroup, getDetailedMetrics, getMetrics } = require("./utils/groupHandlers");
+const { chatHandler, getDetailedMetrics, getMetrics } = require("./utils/groupHandlers");
 //Express
 const app = express();
 app.use(bodyParser.json());
@@ -26,21 +26,6 @@ const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const URI = `/app4/${TOKEN}`;
 const WEBHOOK_URL = serverUrl + URI;
 
-const collectChatData = (chat) => {
-  try {
-    const type = chat.type;
-    const id = chat.id;
-    const title = chat.title;
-    if (type === "private") {
-      addNewPrivate(id, title);
-    } else {
-      addNewGroup(id, title, type);
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 app.post(URI, async (req, res) => {
   try {
     if (req.body.message.chat) {
@@ -50,33 +35,39 @@ app.post(URI, async (req, res) => {
       const id = req.body.message.from.id;
       if (command.split(" ")[0].toLowerCase() == "/ask") {
         const question = command.slice(5);
-        collectChatData(req.body.message.chat);
-        if (question == "test" || question == "test?") {
-          sendMessage(TELEGRAM_API, chatId, "*What exactly are you testing?*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
-        } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
-          sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad \n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
-        } else if (question) {
-          generateText(question).then((response) => {
-            if (response[0] != false) {
-              sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
-            }
-          });
+        if (chatHandler(req.body.message.chat) === false) {
+          sendMessage(TELEGRAM_API, chatId, "*Request are limited to 1 request per 15 seconds for the time being.*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+        } else {
+          if (question == "test" || question == "test?") {
+            sendMessage(TELEGRAM_API, chatId, "*What exactly are you testing?*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+          } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
+            sendMessage(TELEGRAM_API, chatId, "The Open Ai ERC20 dev is a based chad \n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+          } else if (question) {
+            generateText(question).then((response) => {
+              if (response[0] != false) {
+                sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+              }
+            });
+          }
         }
       } else if (command.split(" ")[0].toLowerCase() == "/aski") {
         const question = command.slice(6);
-        collectChatData(req.body.message.chat);
-        if (question) {
-          generateImage(question).then((response) => {
-            if (response[0] != false) {
-              console.log(response[0]);
-              if (response[1] === "image") {
-                sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+        if (chatHandler(req.body.message.chat) === false) {
+          sendMessage(TELEGRAM_API, chatId, "*Request are limited to 1 request per 15 seconds for the time being.*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
+        } else {
+          if (question) {
+            generateImage(question).then((response) => {
+              if (response[0] != false) {
+                console.log(response[0]);
+                if (response[1] === "image") {
+                  sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId, false);
+                } else {
+                  sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
+                }
               } else {
-                sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n[Join OpenAI](http://t.me/OpenAIERC)`, messageId);
               }
-            } else {
-            }
-          });
+            });
+          }
         }
       } else if (command.split(" ")[0].toLowerCase() == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);

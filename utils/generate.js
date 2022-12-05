@@ -50,11 +50,15 @@ const generateImage = async (input) => {
 
 const moderationFilter = async (text) => {
   try {
-    const response = await openai.createModeration({
-      input: text,
-    });
-    console.log(response);
-    return response.data.results[0].flagged;
+    openai
+      .createModeration({
+        input: text,
+      })
+      .then((response) => {
+        console.log(typeof response);
+        console.log(response.data.results[0].flagged);
+        return response.data.results[0].flagged;
+      });
   } catch (err) {
     console.log(err.toJSON);
   }
