@@ -10,6 +10,7 @@ const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
 const { sendMessage, sendPhoto } = require("./utils/sendResponse");
+const { addNewPrivate, addNewGroup } = require("./utils/groupHandlers");
 //Express
 const app = express();
 app.use(bodyParser.json());
@@ -17,21 +18,38 @@ app.use(bodyParser.json());
 //Webhook
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://e6b3-2601-589-4d80-16d0-c17a-1adf-e13e-5716.ngrok.io";
+  serverUrl = "https://ea2b-2601-589-4d80-16d0-2172-e187-1fd2-b908.ngrok.io";
 }
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const URI = `/app4/${TOKEN}`;
 const WEBHOOK_URL = serverUrl + URI;
 
+const collectChatData = (chat) => {
+  try {
+    const type = chat.type;
+    const id = chat.id;
+    const title = chat.title;
+    if (type === "private") {
+      addNewPrivate(id, title);
+    } else {
+      addNewGroup(id, title, type);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 app.post(URI, async (req, res) => {
   try {
     if (req.body.message.chat) {
+      collectChatData(req.body.message.chat);
       const chatId = req.body.message.chat.id;
       const command = req.body.message.text;
       const messageId = req.body.message.message_id;
 
       if (command.split(" ")[0].toLowerCase() == "/ask") {
         const question = command.slice(5);
+        collectChatData(req.body.message.chat);
         if (question == "test" || question == "test?") {
           sendMessage(TELEGRAM_API, chatId, "*What exactly are you testing?*\n\n[Join OpenAI](http://t.me/OpenAIERC)", messageId);
         } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
@@ -45,6 +63,7 @@ app.post(URI, async (req, res) => {
         }
       } else if (command.split(" ")[0].toLowerCase() == "/aski") {
         const question = command.slice(6);
+        collectChatData(req.body.message.chat);
         if (question) {
           generateImage(question).then((response) => {
             if (response != false) {
