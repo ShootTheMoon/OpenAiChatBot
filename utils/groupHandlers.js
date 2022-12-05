@@ -3,7 +3,7 @@ const fs = require("fs");
 
 const privateBufferTime = 15;
 const groupBufferTime = 15;
-const chatExceptions = [-1001848309914, -1001555247769, -1001555247769];
+const chatExceptions = [-1001848309914, -1001555247769, -1001555247769, -1001846307911];
 
 const chatHandler = (chat) => {
   try {
