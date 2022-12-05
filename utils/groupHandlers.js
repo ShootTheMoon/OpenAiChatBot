@@ -39,7 +39,7 @@ const updatePrivate = (found, username) => {
   fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
 };
 
-const getMetrics = () => {
+const getDetailedMetrics = () => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
   let text = "";
@@ -48,9 +48,9 @@ const getMetrics = () => {
   for (let i = 0; i < data.groups.length; i++) {
     requests += data.groups[i].request;
     numOfGroups += 1;
-    text += `*Name:* ${data.groups[i].name} - *Requests:* ${data.groups[i].request}\n`;
+    text += `Name:* ${data.groups[i].name} - Requests: ${data.groups[i].request}\n`;
   }
-  text += `\n*Number of groups:* ${numOfGroups} *Total requests:* ${requests} \n\n`;
+  text += `\nNumber of groups: ${numOfGroups} Total requests: ${requests} \n\n`;
 
   //   for (let i = 0; i < data.private.length; i++) {
   //     requests += data.private[i].request;
@@ -60,5 +60,23 @@ const getMetrics = () => {
   //   text += `Number of groups: ${numOfGroups} Total requests: ${requests}`;
   return text;
 };
+const getMetrics = () => {
+  let data = fs.readFileSync("./data/groupData.json", "utf-8");
+  data = JSON.parse(data);
+  let text = "";
+  let requests = 0;
+  let numOfGroups = 0;
+  let numOfPrivate = 0;
+  for (let i = 0; i < data.groups.length; i++) {
+    requests += data.groups[i].request;
+    numOfGroups += 1;
+  }
+  for (let i = 0; i < data.private.length; i++) {
+    requests += data.private[i].request;
+    numOfPrivate += 1;
+  }
+  text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}`;
+  return text;
+};
 
-module.exports = { getMetrics, addNewGroup, addNewPrivate };
+module.exports = { getDetailedMetrics, getMetrics, addNewGroup, addNewPrivate };

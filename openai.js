@@ -12,7 +12,7 @@ const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
 const { sendMessage, sendPhoto } = require("./utils/sendResponse");
-const { addNewPrivate, addNewGroup, getMetrics } = require("./utils/groupHandlers");
+const { addNewPrivate, addNewGroup, getDetailedMetrics, getMetrics } = require("./utils/groupHandlers");
 //Express
 const app = express();
 app.use(bodyParser.json());
@@ -77,8 +77,11 @@ app.post(URI, async (req, res) => {
         }
       } else if (command.split(" ")[0].toLowerCase() == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
-      } else if (command.split(" ")[0].toLowerCase() == "/metrics" && id === moonsId) {
+      } else if (command.split(" ")[0].toLowerCase() == "/askstats") {
         const text = getMetrics();
+        sendMessage(TELEGRAM_API, chatId, text, messageId);
+      } else if (command.split(" ")[0].toLowerCase() == "/dmetrics" && id === moonsId) {
+        const text = getDetailedMetrics();
         sendMessage(TELEGRAM_API, chatId, text, messageId);
       }
     }
