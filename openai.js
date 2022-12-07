@@ -5,8 +5,8 @@ const axios = require("axios");
 const bodyParser = require("body-parser");
 
 const moonsId = 2056782424;
-const footerText = "Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) | [Chart](https://www.dextools.io/app/en/bnb/pair-explorer/0xc673ef8a48ab012af74b0023bcc20962111c558b)";
-
+// const footerText = "Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) | [Chart](https://www.dextools.io/app/en/bnb/pair-explorer/0xc673ef8a48ab012af74b0023bcc20962111c558b)";
+const footerText = "[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff)";
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
