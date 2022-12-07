@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 
 const moonsId = 2056782424;
 const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC)";
-const footerAdd = `Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) | [📊](https://www.dextools.io/app/en/bnb/pair-explorer/0xc673ef8a48ab012af74b0023bcc20962111c558b)\n${openAiAd}`;
+const footerAdd = `Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) [📊](https://www.dextools.io/app/en/bnb/pair-explorer/0xc673ef8a48ab012af74b0023bcc20962111c558b)\n${openAiAd}`;
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
