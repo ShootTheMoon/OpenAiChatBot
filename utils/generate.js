@@ -43,7 +43,7 @@ const generateImage = async (input) => {
       return ["_Given text violates OpenAI's Content Policy_", "text"];
     }
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return [false];
   }
 };

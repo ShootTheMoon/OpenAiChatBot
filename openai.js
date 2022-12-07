@@ -73,7 +73,7 @@ app.post(URI, async (req, res) => {
             if (question) {
               generateImage(question).then((response) => {
                 if (response[0] != false) {
-                  console.log(response[0]);
+                  console.log(response[0], id);
                   if (response[1] === "image") {
                     sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n${footerText}`, messageId, false);
                   } else {
@@ -95,8 +95,7 @@ app.post(URI, async (req, res) => {
         sendMessage(TELEGRAM_API, chatId, text, messageId);
       }
     }
-  } catch (err) {
-  }
+  } catch (err) {}
   return res.send();
 });
 
