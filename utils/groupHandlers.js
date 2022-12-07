@@ -1,8 +1,8 @@
 // Lib imports
 const fs = require("fs");
 
-const privateBufferTime = 15;
-const groupBufferTime = 15;
+const privateBufferTime = 30;
+const groupBufferTime = 10;
 const chatExceptions = [-1001848309914, -1001555247769, -1001555247769, -1001846307911];
 
 const chatHandler = (chat) => {
@@ -67,16 +67,16 @@ const updateGroup = (id, found, title) => {
     data.groups[found].request += 1;
     data.groups[found].lastRequest = date;
     fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
-    return true;
+    return [false, 0];
   }
   if ((date - lastRequest).toFixed() < groupBufferTime) {
-    return false;
+    return ["group", (groupBufferTime - (date - lastRequest)).toFixed()];
   }
   data.groups[found].name = title;
   data.groups[found].request += 1;
   data.groups[found].lastRequest = date;
   fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
-  return true;
+  return [false, 0];
 };
 const updatePrivate = (id, found, username) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
@@ -89,16 +89,16 @@ const updatePrivate = (id, found, username) => {
     data.private[found].request += 1;
     data.private[found].lastRequest = date;
     fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
-    return true;
+    return [false, 0];
   }
   if ((date - lastRequest).toFixed() < privateBufferTime) {
-    return false;
+    return ["private", (privateBufferTime - (date - lastRequest)).toFixed()];
   }
   data.private[found].name = username;
   data.private[found].request += 1;
   data.private[found].lastRequest = date;
   fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
-  return true;
+  return [false, 0];
 };
 
 const getDetailedMetrics = () => {
@@ -107,6 +107,7 @@ const getDetailedMetrics = () => {
   let text = "";
   let requests = 0;
   let numOfGroups = 0;
+
   for (let i = 0; i < data.groups.length; i++) {
     requests += data.groups[i].request;
     numOfGroups += 1;
