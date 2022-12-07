@@ -124,7 +124,7 @@ const getDetailedMetrics = () => {
   //   text += `Number of groups: ${numOfGroups} Total requests: ${requests}`;
   return "Check console";
 };
-const getMetrics = () => {
+const getMetrics = (id) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
   let text = "";
@@ -138,6 +138,19 @@ const getMetrics = () => {
   for (let i = 0; i < data.private.length; i++) {
     requests += data.private[i].request;
     numOfPrivate += 1;
+  }
+
+  const group = data.groups.findIndex(({ chatId }) => chatId === id);
+  if (group != -1) {
+    const req = data.groups[group].request;
+    text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}\n*Request sent in this group*: ${req}`;
+    return text;
+  }
+  const private = data.private.findIndex(({ chatId }) => chatId === id);
+  if (private != -1) {
+    const req = data.private[private].request;
+    text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}\n*Request sent in this chat*: ${req}`;
+    return text;
   }
   text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}`;
   return text;

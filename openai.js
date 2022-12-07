@@ -90,14 +90,16 @@ app.post(URI, async (req, res) => {
       } else if (command.split(" ")[0].toLowerCase() == "/start") {
         sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
       } else if (command.split(" ")[0].toLowerCase() == "/askstats") {
-        const text = getMetrics();
+        const text = getMetrics(chatId);
         sendMessage(TELEGRAM_API, chatId, text, messageId);
       } else if (command.split(" ")[0].toLowerCase() == "/dmetrics" && id === moonsId) {
         const text = getDetailedMetrics();
         sendMessage(TELEGRAM_API, chatId, text, messageId);
       }
     }
-  } catch (err) {}
+  } catch (err) {
+    // console.log(err);
+  }
   return res.send();
 });
 
