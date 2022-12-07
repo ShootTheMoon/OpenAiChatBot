@@ -46,6 +46,7 @@ app.post(URI, async (req, res) => {
           } else if (chatType === "private") {
             sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerText}`, messageId);
           } else {
+            console.log(question, id);
             if (question == "test" || question == "test?") {
               sendMessage(TELEGRAM_API, chatId, `*What exactly are you testing?*\n\n${footerText}`, messageId);
             } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
@@ -73,7 +74,7 @@ app.post(URI, async (req, res) => {
             if (question) {
               generateImage(question).then((response) => {
                 if (response[0] != false) {
-                  console.log(response[0], chat.id, chat.username);
+                  console.log("Img", id);
                   if (response[1] === "image") {
                     sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n${footerText}`, messageId, false);
                   } else {
