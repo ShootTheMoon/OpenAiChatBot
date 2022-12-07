@@ -95,6 +95,8 @@ app.post(URI, async (req, res) => {
       } else if (command.split(" ")[0].toLowerCase() == "/dmetrics" && id === moonsId) {
         const text = getDetailedMetrics();
         sendMessage(TELEGRAM_API, chatId, text, messageId);
+      } else if (command.split(" ")[0].toLowerCase() == "/askcreator") {
+        sendMessage(TELEGRAM_API, chatId, "@MoonRocket23", messageId);
       }
     }
   } catch (err) {
