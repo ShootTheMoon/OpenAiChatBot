@@ -55,7 +55,7 @@ app.post(URI, async (req, res) => {
           sendMessage(TELEGRAM_API, chatId, `*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}`, messageId);
         } else {
           const [chatType, timeLeft] = chatHandler(req.body.message.chat);
-          logChat(req, question);
+          // logChat(req, question);
           if (chatType === "group") {
             sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
           } else if (chatType === "private") {
@@ -80,7 +80,7 @@ app.post(URI, async (req, res) => {
           sendMessage(TELEGRAM_API, chatId, `*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}`, messageId);
         } else {
           const [chatType, timeLeft] = chatHandler(req.body.message.chat);
-          logChat(req, question);
+          // logChat(req, question);
           if (chatType === "group") {
             sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
           } else if (chatType === "private") {
