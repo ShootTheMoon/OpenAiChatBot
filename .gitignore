@@ -1,3 +1,4 @@
 /node_modules
 /data/groupData.json
+/data/chatData.txt
 .env
