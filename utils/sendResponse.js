@@ -31,7 +31,8 @@ function sendMessage(api, chat, msg, msgID, button) {
         parse_mode: "Markdown",
       })
       .catch((err) => {
-        sendMessage(api, chat, "*Err*", msgID);
+        console.log(err.data);
+        // sendMessage(api, chat, "*Err*", msgID);
       });
   }
 }
