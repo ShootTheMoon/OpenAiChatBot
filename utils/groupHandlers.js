@@ -38,7 +38,7 @@ const groupHandler = (id, title, groupType) => {
   if (found === -1) {
     data.groups.push({ chatId: id, name: title, type: groupType, request: 1, lastRequest: date });
     fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
-    return true;
+    return [false, 0];
   }
   return updateGroup(id, found, title);
 };
@@ -51,7 +51,7 @@ const privateHandler = (id, username) => {
   if (found === -1) {
     data.private.push({ chatId: id, name: username, request: 1, lastRequest: date });
     fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
-    return true;
+    return [false, 0];
   }
   return updatePrivate(id, found, username);
 };
@@ -101,59 +101,71 @@ const updatePrivate = (id, found, username) => {
   return [false, 0];
 };
 
-const getDetailedMetrics = () => {
+const sortData = () => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
-  let text = "";
-  let requests = 0;
-  let numOfGroups = 0;
 
-  for (let i = 0; i < data.groups.length; i++) {
-    requests += data.groups[i].request;
-    numOfGroups += 1;
-    text += `Name: ${data.groups[i].name} - Requests: ${data.groups[i].request}\n`;
+  function insertionSort(inputArr) {
+    let n = inputArr.groups.length;
+    for (let i = 1; i < n; i++) {
+      // Choosing the first element in our unsorted subarray
+      let current = inputArr.groups[i];
+      // The last element of our sorted subarray
+      let j = i - 1;
+      while (j > -1 && current.request > inputArr.groups[j].request) {
+        inputArr.groups[j + 1] = inputArr.groups[j];
+        j--;
+      }
+      inputArr.groups[j + 1] = current;
+    }
+    n = inputArr.private.length;
+    for (let i = 1; i < n; i++) {
+      // Choosing the first element in our unsorted subarray
+      let current = inputArr.private[i];
+      // The last element of our sorted subarray
+      let j = i - 1;
+      while (j > -1 && current.request > inputArr.private[j].request) {
+        inputArr.private[j + 1] = inputArr.private[j];
+        j--;
+      }
+      inputArr.private[j + 1] = current;
+    }
+    return inputArr;
   }
-  text += `\nNumber of groups: ${numOfGroups} Total requests: ${requests} \n\n`;
-  console.log(text);
 
-  //   for (let i = 0; i < data.private.length; i++) {
-  //     requests += data.private[i].request;
-  //     numOfPrivate += 1;
-  //     text += `Name: ${data.groups[i].name} - Requests: ${data.groups[i].request}\n`;
-  //   }
-  //   text += `Number of groups: ${numOfGroups} Total requests: ${requests}`;
-  return "Check console";
+  data = insertionSort(data);
+  fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
 };
 const getMetrics = (id) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
   let text = "";
-  let requests = 0;
+  let request = 0;
   let numOfGroups = 0;
   let numOfPrivate = 0;
   for (let i = 0; i < data.groups.length; i++) {
-    requests += data.groups[i].request;
+    request += data.groups[i].request;
     numOfGroups += 1;
   }
   for (let i = 0; i < data.private.length; i++) {
-    requests += data.private[i].request;
+    request += data.private[i].request;
     numOfPrivate += 1;
   }
 
   const group = data.groups.findIndex(({ chatId }) => chatId === id);
   if (group != -1) {
     const req = data.groups[group].request;
-    text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}\n*Request sent in this group*: ${req}`;
+    text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total request:* ${request}\n*Request sent in this group*: ${req}`;
     return text;
   }
   const private = data.private.findIndex(({ chatId }) => chatId === id);
   if (private != -1) {
     const req = data.private[private].request;
-    text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}\n*Request sent in this chat*: ${req}`;
+    text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total request:* ${request}\n*Request sent in this chat*: ${req}`;
     return text;
   }
-  text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total requests:* ${requests}`;
+  text += `*Number of groups:* ${numOfGroups}\n*Number of private chats:* ${numOfPrivate}\n*Total request:* ${request}`;
   return text;
 };
 
-module.exports = { getDetailedMetrics, getMetrics, chatHandler };
+module.exports = { sortData, getMetrics, chatHandler };
