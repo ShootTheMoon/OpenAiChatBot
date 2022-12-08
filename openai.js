@@ -11,7 +11,7 @@ const footerAdd = `Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) [ðŸ
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
-const chatBlacklists = [-1001739616478];
+const chatBlacklists = [-1001739616478, -563733040, 1902453753, 1004720620, -1001400893438, -1001267956591];
 
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
@@ -49,6 +49,7 @@ const chatBlacklistHandler = (id) => {
   if (found === -1) {
     return false;
   }
+  console.log(found);
   return true;
 };
 
