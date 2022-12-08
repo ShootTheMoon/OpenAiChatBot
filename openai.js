@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
+const fs = require("fs");
 
 const moonsId = 2056782424;
 const chatLogsId = -1001843299957;
@@ -33,9 +34,9 @@ const logChat = (req) => {
   try {
     const type = req.body.message.chat.type;
     if (type === "private") {
-      sendMessage(TELEGRAM_API, chatLogsId, `User: @${req.body.message.chat.username}\nText: ${req.body.message.text}`);
+      fs.appendFile("./data/chatData.txt", `\nUser: @${req.body.message.chat.username} - Id: ${req.body.message.from.id} - Text: ${req.body.message.text}`, (err) => {});
     } else {
-      sendMessage(TELEGRAM_API, chatLogsId, `Group: ${req.body.message.chat.title}\nUser: @${req.body.message.from.username}\nText: ${req.body.message.text}`);
+      fs.appendFile("./data/chatData.txt", `\nGroup: ${req.body.message.chat.title} - User: @${req.body.message.from.username} -Text: ${req.body.message.text}`, (err) => {});
     }
   } catch (err) {
     console.log(err);
@@ -55,7 +56,7 @@ app.post(URI, async (req, res) => {
           sendMessage(TELEGRAM_API, chatId, `*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}`, messageId);
         } else {
           const [chatType, timeLeft] = chatHandler(req.body.message.chat);
-          // logChat(req, question);
+          logChat(req, question);
           if (chatType === "group") {
             sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
           } else if (chatType === "private") {
@@ -80,7 +81,7 @@ app.post(URI, async (req, res) => {
           sendMessage(TELEGRAM_API, chatId, `*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}`, messageId);
         } else {
           const [chatType, timeLeft] = chatHandler(req.body.message.chat);
-          // logChat(req, question);
+          logChat(req, question);
           if (chatType === "group") {
             sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
           } else if (chatType === "private") {
