@@ -111,7 +111,7 @@ app.post(URI, async (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err);
+    // console.log(err);
   }
   return res.send();
 });
