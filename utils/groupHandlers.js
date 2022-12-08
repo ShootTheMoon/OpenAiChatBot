@@ -28,7 +28,6 @@ const chatExceptionsHandler = (id) => {
   }
   return true;
 };
-
 const groupHandler = (id, title, groupType) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);

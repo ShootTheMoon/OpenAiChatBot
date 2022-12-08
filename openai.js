@@ -6,12 +6,12 @@ const bodyParser = require("body-parser");
 const fs = require("fs");
 
 const moonsId = 2056782424;
-const chatLogsId = -1001843299957;
 const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC)";
 const footerAdd = `Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) [📊](https://www.dextools.io/app/en/bnb/pair-explorer/0xc673ef8a48ab012af74b0023bcc20962111c558b)\n${openAiAd}`;
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
+const chatBlacklists = [-1001739616478];
 
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
@@ -43,6 +43,15 @@ const logChat = (req) => {
   }
 };
 
+const chatBlacklistHandler = (id) => {
+  console.log(id);
+  const found = chatBlacklists.findIndex((chatId) => chatId === id);
+  if (found === -1) {
+    return false;
+  }
+  return true;
+};
+
 app.post(URI, async (req, res) => {
   try {
     if (req.body.message.chat) {
@@ -50,65 +59,67 @@ app.post(URI, async (req, res) => {
       const command = req.body.message.text;
       const messageId = req.body.message.message_id;
       const id = req.body.message.from.id;
-      if (command.split(" ")[0].toLowerCase() == "/ask") {
-        const question = command.slice(5);
-        if (!question) {
-          sendMessage(TELEGRAM_API, chatId, `*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}`, messageId);
-        } else {
-          const [chatType, timeLeft] = chatHandler(req.body.message.chat);
-          logChat(req, question);
-          if (chatType === "group") {
-            sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
-          } else if (chatType === "private") {
-            sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
+      if (chatBlacklistHandler(chatId) === false) {
+        if (command.split(" ")[0].toLowerCase() == "/ask") {
+          const question = command.slice(5);
+          if (!question) {
+            sendMessage(TELEGRAM_API, chatId, `*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}`, messageId);
           } else {
-            if (question == "test" || question == "test?") {
-              sendMessage(TELEGRAM_API, chatId, `*What exactly are you testing?*\n\n${footerAdd}`, messageId);
-            } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
-              sendMessage(TELEGRAM_API, chatId, `The Open Ai ERC20 dev is a based chad \n\n${footerAdd}`, messageId);
-            } else if (question) {
-              generateText(question).then((response) => {
-                if (response[0] != false) {
-                  sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n${footerAdd}`, messageId);
-                }
-              });
-            }
-          }
-        }
-      } else if (command.split(" ")[0].toLowerCase() == "/aski") {
-        const question = command.slice(6);
-        if (!question) {
-          sendMessage(TELEGRAM_API, chatId, `*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}`, messageId);
-        } else {
-          const [chatType, timeLeft] = chatHandler(req.body.message.chat);
-          logChat(req, question);
-          if (chatType === "group") {
-            sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
-          } else if (chatType === "private") {
-            sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
-          } else {
-            if (question) {
-              generateImage(question).then((response) => {
-                if (response[0] != false) {
-                  if (response[1] === "image") {
-                    sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n${footerAdd}`, messageId, false);
-                  } else {
+            const [chatType, timeLeft] = chatHandler(req.body.message.chat);
+            logChat(req, question);
+            if (chatType === "group") {
+              sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
+            } else if (chatType === "private") {
+              sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
+            } else {
+              if (question == "test" || question == "test?") {
+                sendMessage(TELEGRAM_API, chatId, `*What exactly are you testing?*\n\n${footerAdd}`, messageId);
+              } else if (question == "is the dev based" || question == "is the dev based?" || question == "is dev based" || question == "is dev based?") {
+                sendMessage(TELEGRAM_API, chatId, `The Open Ai ERC20 dev is a based chad \n\n${footerAdd}`, messageId);
+              } else if (question) {
+                generateText(question).then((response) => {
+                  if (response[0] != false) {
                     sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n${footerAdd}`, messageId);
                   }
-                }
-              });
+                });
+              }
             }
           }
+        } else if (command.split(" ")[0].toLowerCase() == "/aski") {
+          const question = command.slice(6);
+          if (!question) {
+            sendMessage(TELEGRAM_API, chatId, `*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}`, messageId);
+          } else {
+            const [chatType, timeLeft] = chatHandler(req.body.message.chat);
+            logChat(req, question);
+            if (chatType === "group") {
+              sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
+            } else if (chatType === "private") {
+              sendMessage(TELEGRAM_API, chatId, `*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, messageId);
+            } else {
+              if (question) {
+                generateImage(question).then((response) => {
+                  if (response[0] != false) {
+                    if (response[1] === "image") {
+                      sendPhoto(TELEGRAM_API, chatId, response[0], `${question}\n\n${footerAdd}`, messageId, false);
+                    } else {
+                      sendMessage(TELEGRAM_API, chatId, `${response[0]}\n\n${footerAdd}`, messageId);
+                    }
+                  }
+                });
+              }
+            }
+          }
+        } else if (command.split(" ")[0].toLowerCase() == "/start") {
+          sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
+        } else if (command.split(" ")[0].toLowerCase() == "/askstats") {
+          const text = getMetrics(chatId);
+          sendMessage(TELEGRAM_API, chatId, text, messageId);
+        } else if (command.split(" ")[0].toLowerCase() == "/asksort" && id === moonsId) {
+          sortData();
+        } else if (command.split(" ")[0].toLowerCase() == "/askcreator") {
+          sendMessage(TELEGRAM_API, chatId, "@MoonRocket23", messageId);
         }
-      } else if (command.split(" ")[0].toLowerCase() == "/start") {
-        sendMessage(TELEGRAM_API, chatId, "*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", messageId);
-      } else if (command.split(" ")[0].toLowerCase() == "/askstats") {
-        const text = getMetrics(chatId);
-        sendMessage(TELEGRAM_API, chatId, text, messageId);
-      } else if (command.split(" ")[0].toLowerCase() == "/asksort" && id === moonsId) {
-        sortData();
-      } else if (command.split(" ")[0].toLowerCase() == "/askcreator") {
-        sendMessage(TELEGRAM_API, chatId, "@MoonRocket23", messageId);
       }
     }
   } catch (err) {

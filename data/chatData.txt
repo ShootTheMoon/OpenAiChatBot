@@ -1,3 +1,4 @@
 
 User: @MoonRocket23 - Id: 2056782424 - Text: /ask test
 Group: $OPENAI - User: @MoonRocket23 -Text: /ask test
+Group: $OPENAI - User: @MoonRocket23 -Text: /ask test
