@@ -7,7 +7,7 @@ const fs = require("fs");
 
 const moonsId = 2056782424;
 const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC)";
-const footerAdd = `Ad: [SNOWBALL JACKPOT](https://t.me/snowballbsc_official) [📊](https://www.dextools.io/app/en/bnb/pair-explorer/0xc673ef8a48ab012af74b0023bcc20962111c558b)\n${openAiAd}`;
+const footerAdd = `[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)`;
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
