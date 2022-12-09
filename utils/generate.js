@@ -25,7 +25,7 @@ const generateText = async (input) => {
       return ["_Given text violates OpenAI's Content Policy_", "violation"];
     }
   } catch (err) {
-    console.log("Text Generation Error");
+    console.log(err);
     return [false];
   }
 };
