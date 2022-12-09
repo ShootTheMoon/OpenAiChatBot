@@ -100,21 +100,11 @@ bot.command((ctx) => {
                 for (let i = 0; i < msgAmount; i++) {
                   setTimeout(() => {
                     ctx
-                      .reply(
-                        `${response[0]
-                          .slice(start, end)
-                          .replace("_", "\\_")
-                          .replace("*", "\\*")
-                          .replace("[", "\\[")
-                          .replace("(", "\\(")
-                          .replace(")", "\\(")
-                          .replace("~", "\\~")
-                          .replace("|", "\\|")
-                          .replace(">", "\\>")
-                          .replace(">", "\\>")
-                          .replace("=", "\\=")}\n\n${footerAdd}`,
-                        { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }
-                      )
+                      .reply(`${response[0].slice(start, end).replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("(", "\\(").replace(")", "\\(").replace("~", "\\~").replace("|", "\\|").replace(">", "\\>")}\n\n${footerAdd}`, {
+                        parse_mode: "Markdown",
+                        disable_web_page_preview: true,
+                        reply_to_message_id: messageId,
+                      })
                       .catch((err) => console.log(err));
                     start = start + MAX_SIZE;
                     end = end + MAX_SIZE;
