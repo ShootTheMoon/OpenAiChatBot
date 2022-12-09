@@ -88,7 +88,7 @@ bot.command((ctx) => {
           const [chatType, timeLeft] = chatHandler(ctx.message.chat);
           logChat(ctx, question);
           if (chatType === "group") {
-            ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
           } else if (chatType === "private") {
             ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
           } else {
@@ -111,7 +111,6 @@ bot.command((ctx) => {
                           .replace("~", "\\~")
                           .replace("|", "\\|")
                           .replace(">", "\\>")
-                          .replace(".", "\\.")
                           .replace(">", "\\>")
                           .replace("=", "\\=")}\n\n${footerAdd}`,
                         { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }
