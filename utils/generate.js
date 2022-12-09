@@ -25,7 +25,7 @@ const generateText = async (input) => {
       return ["_Given text violates OpenAI's Content Policy_", "violation"];
     }
   } catch (err) {
-    console.log(err);
+    console.log("Text Generation Error");
     return [false];
   }
 };
@@ -44,7 +44,7 @@ const generateImage = async (input) => {
       return ["_Given text violates OpenAI's Content Policy_", "violation"];
     }
   } catch (err) {
-    console.log(err);
+    console.log("Image Generation Error");
     return [false];
   }
 };
