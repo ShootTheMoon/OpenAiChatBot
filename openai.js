@@ -78,10 +78,6 @@ bot.command((ctx) => {
     const command = ctx.message.text;
     const messageId = ctx.message.message_id;
     // Check for profanity
-    if (profanityFilter(command) === true) {
-      ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-      return;
-    }
     // Check if blacklisted
     if (command.split(" ")[0].toLowerCase() === "/ask") {
       if (chatBlacklistHandler(chatId) === false) {
@@ -98,6 +94,15 @@ bot.command((ctx) => {
           } else if (chatType === "private") {
             ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
           } else {
+            if (profanityFilter(command) === true) {
+              let username = ctx.message.chat.username;
+              if (!username) {
+                username = ctx.update.message.from.username;
+              }
+              ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+              ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
+              return;
+            }
             generateText(question).then((response) => {
               if (response[1] === "text") {
                 let start = 0;
@@ -147,6 +152,15 @@ bot.command((ctx) => {
             ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
           } else {
             if (question) {
+              if (profanityFilter(command) === true) {
+                let username = ctx.message.chat.username;
+                if (!username) {
+                  username = ctx.update.message.from.username;
+                }
+                ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+                ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
+                return;
+              }
               generateImage(question).then((response) => {
                 if (response[1] === "image") {
                   ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${question}\n\n${footerAdd}`, reply_to_message_id: messageId }).catch((err) => console.log(err));
