@@ -15,6 +15,7 @@ const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 // Function Imports
 const { generateImage, generateText } = require("./utils/generate");
 const { chatHandler, sortData, getMetrics } = require("./utils/groupHandlers");
+const { profanityFilter } = require("./utils/profanityFilter");
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
@@ -76,6 +77,11 @@ bot.command((ctx) => {
     const chatId = ctx.message.chat.id;
     const command = ctx.message.text;
     const messageId = ctx.message.message_id;
+    // Check for profanity
+    if (profanityFilter(command) === true) {
+      ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      return;
+    }
     // Check if blacklisted
     if (command.split(" ")[0].toLowerCase() === "/ask") {
       if (chatBlacklistHandler(chatId) === false) {
