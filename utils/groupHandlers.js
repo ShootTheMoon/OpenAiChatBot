@@ -3,7 +3,7 @@ const fs = require("fs");
 
 const privateBufferTime = 30;
 const groupBufferTime = 10;
-const chatExceptions = [-1001848309914, -1001555247769, -1001555247769, -1001846307911];
+const chatExceptions = [-1001848309914, -1001555247769, -1001555247769, -1001846307911, 2056782424];
 
 const chatHandler = (chat) => {
   try {
@@ -21,6 +21,7 @@ const chatHandler = (chat) => {
   }
 };
 
+// Check if whitelisted
 const chatExceptionsHandler = (id) => {
   const found = chatExceptions.findIndex((chatId) => chatId === id);
   if (found === -1) {
@@ -28,6 +29,7 @@ const chatExceptionsHandler = (id) => {
   }
   return true;
 };
+
 const groupHandler = (id, title, groupType) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
@@ -41,6 +43,7 @@ const groupHandler = (id, title, groupType) => {
   }
   return updateGroup(id, found, title);
 };
+
 const privateHandler = (id, username) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
@@ -77,6 +80,7 @@ const updateGroup = (id, found, title) => {
   fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
   return [false, 0];
 };
+
 const updatePrivate = (id, found, username) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
@@ -103,7 +107,6 @@ const updatePrivate = (id, found, username) => {
 const sortData = () => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);
-
   function insertionSort(inputArr) {
     let n = inputArr.groups.length;
     for (let i = 1; i < n; i++) {
@@ -135,6 +138,7 @@ const sortData = () => {
   data = insertionSort(data);
   fs.writeFileSync("./data/groupData.json", JSON.stringify(data));
 };
+
 const getMetrics = (id) => {
   let data = fs.readFileSync("./data/groupData.json", "utf-8");
   data = JSON.parse(data);

@@ -9,7 +9,7 @@ const openai = new OpenAIApi(configuration);
 
 const generateText = async (input) => {
   try {
-    const filter = false;
+    const filter = await moderationFilter(input);
     if (filter === false) {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -22,17 +22,18 @@ const generateText = async (input) => {
       });
       return [response.data.choices[0].text, "text"];
     } else {
-      return ["_Given text violates OpenAI's Content Policy_", "text"];
+      return ["_Given text violates OpenAI's Content Policy_", "violation"];
     }
   } catch (err) {
+    console.log(err);
     return [false];
   }
 };
 
 const generateImage = async (input) => {
   try {
-    const filter = false;
-    if (filter == -false) {
+    const filter = await moderationFilter(input);
+    if (filter === false) {
       const response = await openai.createImage({
         prompt: input,
         n: 1,
@@ -40,27 +41,23 @@ const generateImage = async (input) => {
       });
       return [response.data.data[0].url, "image"];
     } else {
-      return ["_Given text violates OpenAI's Content Policy_", "text"];
+      return ["_Given text violates OpenAI's Content Policy_", "violation"];
     }
   } catch (err) {
-    // console.log(err);
+    console.log(err);
     return [false];
   }
 };
 
 const moderationFilter = async (text) => {
   try {
-    openai
-      .createModeration({
-        input: text,
-      })
-      .then((response) => {
-        console.log(typeof response);
-        console.log(response.data.results[0].flagged);
-        return response.data.results[0].flagged;
-      });
+    response = await openai.createModeration({
+      input: text,
+    });
+    return response.data.results[0].flagged;
   } catch (err) {
-    console.log(err.toJSON);
+    console.log("Moderation Filter Error");
+    return false;
   }
 };
 
