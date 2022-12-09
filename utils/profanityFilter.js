@@ -2,7 +2,10 @@ const profanity = ["nigger", "nigga", "fag", "faggot", "kike", "slut", "fagot", 
 
 const profanityFilter = (msg) => {
   for (let i = 0; i < profanity.length; i++) {
-    if (msg.search(profanity[i]) != -1) {
+    console.log(msg);
+    let regex = new RegExp("\\b(" + profanity[i] + ")\\b");
+    if ((msg.match(regex) == null) == false) {
+      console.log(msg.match(regex) == null);
       return true;
     }
   }
