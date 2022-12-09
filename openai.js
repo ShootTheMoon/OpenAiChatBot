@@ -79,7 +79,12 @@ bot.command((ctx) => {
     const messageId = ctx.message.message_id;
     // Check for profanity
     if (profanityFilter(command) === true) {
+      let username = ctx.message.chat.username;
+      if (!username) {
+        username = ctx.update.message.from.username;
+      }
       ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
       return;
     }
     // Check if blacklisted
