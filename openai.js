@@ -41,7 +41,6 @@ const logChat = (ctx) => {
 const chatBlacklistHandler = (id) => {
   let data = fs.readFileSync("./data/blacklistData.json", "utf-8");
   data = JSON.parse(data);
-  console.log(data);
   const found = data.findIndex((chatId) => chatId === id);
   if (found === -1) {
     return false;
