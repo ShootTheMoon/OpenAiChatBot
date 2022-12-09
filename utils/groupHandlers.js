@@ -17,7 +17,7 @@ const chatHandler = (chat) => {
     }
   } catch (err) {
     console.log(err);
-    return true;
+    return [true, 0];
   }
 };
 
