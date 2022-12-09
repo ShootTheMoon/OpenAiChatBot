@@ -54,7 +54,10 @@ const moderationFilter = async (text) => {
     response = await openai.createModeration({
       input: text,
     });
-    return response.data.results[0].flagged;
+    if (response.data.results[0].flagged == true) {
+      return true;
+    }
+    return false;
   } catch (err) {
     console.log("Moderation Filter Error");
     return false;
