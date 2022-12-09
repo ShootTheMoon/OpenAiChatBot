@@ -99,7 +99,31 @@ bot.command((ctx) => {
                 const msgAmount = response[0].length / MAX_SIZE;
                 for (let i = 0; i < msgAmount; i++) {
                   setTimeout(() => {
-                    ctx.reply(`${response[0].slice(start, end).replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+                    ctx
+                      .reply(
+                        `${response[0]
+                          .slice(start, end)
+                          .replace(/\_/g, "\\_")
+                          .replace(/\*/g, "\\*")
+                          .replace(/\[/g, "\\[")
+                          .replace(/\]/g, "\\]")
+                          .replace(/\(/g, "\\(")
+                          .replace(/\)/g, "\\)")
+                          .replace(/\~/g, "\\~")
+                          .replace(/\`/g, "\\`")
+                          .replace(/\>/g, "\\>")
+                          .replace(/\#/g, "\\#")
+                          .replace(/\+/g, "\\+")
+                          .replace(/\-/g, "\\-")
+                          .replace(/\=/g, "\\=")
+                          .replace(/\|/g, "\\|")
+                          .replace(/\{/g, "\\{")
+                          .replace(/\}/g, "\\}")
+                          .replace(/\./g, "\\.")
+                          .replace(/\!/g, "\\!")}\n\n${footerAdd}`,
+                        { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }
+                      )
+                      .catch((err) => console.log(err));
                     start = start + MAX_SIZE;
                     end = end + MAX_SIZE;
                   }, 100);
