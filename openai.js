@@ -153,14 +153,16 @@ bot.command((ctx) => {
 bot.launch({
   webhook: {
     // Public domain for webhook; e.g.: example.com
-    domain: `${serverUrl}/app3`,
+    domain: `${serverUrl}`,
 
     // Port to listen on; e.g.: 8080
     port: PORT,
 
+    // path: "/artifactory",
+
     // // Optional path to listen for.
     // // `bot.secretPathComponent()` will be used by default
-    // hookPath: webhookPath,
+    hookPath: `/app4/${TOKEN}`,
 
     // // Optional secret to be sent back in a header for security.
     // // e.g.: `crypto.randomBytes(64).toString("hex")`
