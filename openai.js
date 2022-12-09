@@ -77,8 +77,8 @@ bot.command((ctx) => {
     const command = ctx.message.text;
     const messageId = ctx.message.message_id;
     // Check if blacklisted
-    if (chatBlacklistHandler(chatId) === false) {
-      if (command.split(" ")[0].toLowerCase() === "/ask") {
+    if (command.split(" ")[0].toLowerCase() === "/ask") {
+      if (chatBlacklistHandler(chatId) === false) {
         const question = command.slice(5);
         // Check if command is empty
         if (!question) {
@@ -110,7 +110,9 @@ bot.command((ctx) => {
             });
           }
         }
-      } else if (command.split(" ")[0].toLowerCase() === "/aski") {
+      }
+    } else if (command.split(" ")[0].toLowerCase() === "/aski") {
+      if (chatBlacklistHandler(chatId) === false) {
         const question = command.slice(6);
         // Check if command is empty
         if (!question) {
@@ -136,16 +138,16 @@ bot.command((ctx) => {
             }
           }
         }
-      } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
-        const stats = getMetrics(chatId);
-        ctx.reply(`${stats}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-      } else if (command.split(" ")[0].toLowerCase() === "/askcreator") {
-        ctx.reply(`@MoonRocket23`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-      } else if (command.split(" ")[0].toLowerCase() === "/askblacklist" && ctx.message.from.id === moonsId) {
-        const group = command.slice(14);
-        const res = blacklistGroup(group);
-        ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       }
+    } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
+      const stats = getMetrics(chatId);
+      ctx.reply(`${stats}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+    } else if (command.split(" ")[0].toLowerCase() === "/askcreator") {
+      ctx.reply(`@MoonRocket23`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+    } else if (command.split(" ")[0].toLowerCase() === "/askblacklist" && ctx.message.from.id === moonsId) {
+      const group = command.slice(14);
+      const res = blacklistGroup(group);
+      ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     }
   } catch (err) {
     console.log(err);
