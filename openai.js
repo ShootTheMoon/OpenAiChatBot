@@ -65,7 +65,11 @@ const blacklistGroup = (id) => {
 
 // On /start
 bot.start((ctx) => {
-  ctx.reply("*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", { parse_mode: "Markdown" });
+  try {
+    ctx
+      .reply("*Welcome to the the OpenAi ERC20 Bot, use /ask followed by a question or statement to generate a response or use /aski followed by a depiction to generate an image!*\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC", { parse_mode: "Markdown" })
+      .catch((err) => console.log(err));
+  } catch (err) {}
 });
 // On bot command
 bot.command((ctx) => {
