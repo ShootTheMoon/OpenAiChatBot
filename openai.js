@@ -213,10 +213,11 @@ bot.command((ctx) => {
       const group = command.slice(14);
       const res = blacklistGroup(group);
       ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-    } else if (command.split(" ")[0].toLowerCase() === "/broadcast" && ctx.message.from.id === moonsId) {
-      const message = command.slice(11);
-      broadcast(ctx, message);
     }
+    //  else if (command.split(" ")[0].toLowerCase() === "/broadcast" && ctx.message.from.id === moonsId) {
+    //   const message = command.slice(11);
+    //   broadcast(ctx, message);
+    // }
   } catch (err) {
     console.log(err);
   }
