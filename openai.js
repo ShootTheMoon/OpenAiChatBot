@@ -75,7 +75,6 @@ const sendCallHandler = async (ctx, question) => {
     const ctxQueue = [...ctxQueueTxt];
     reqQueueTxt.length = 0;
     ctxQueueTxt.length = 0;
-    console.log(reqQueue);
     const resArray = await generateText(reqQueue);
     for (let i = 0; i < resArray[0].length; i++) {
       sendTextHandler(ctxQueue[i], resArray[0][i].text);
