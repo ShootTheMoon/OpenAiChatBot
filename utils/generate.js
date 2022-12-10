@@ -25,7 +25,6 @@ const generateText = async (input) => {
           presence_penalty: 0.5,
         });
       });
-      console.log(response.data);
       return [response.data.choices];
     } else {
       return ["_Given text violates OpenAI's Content Policy_"];
