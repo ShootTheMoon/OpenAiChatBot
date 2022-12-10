@@ -20,7 +20,7 @@ const broadcast = (ctx, msg = false) => {
       data = JSON.parse(data);
       const groups = data.groups;
       for (let i = 0; i < groups.length; i++) {
-        setInterval(() => {
+        setTimeout(() => {
           ctx
             .sendMessage(
               `*Twitter Bot!*\n\nOpenAI ERC's twitter bot is now live! You can use it by mentioning the account below followed by a statement or question!\n\nTwitter Bot: [@OpenAIChat_BOT](twitter.com/OpenAIChat_BOT)\n\n_5000$ for whoever gets a reply from Elon or Vitalik using the twitter bot (info). Also, 4000$ Big Buy Competition ends in 18 hours._\n\n${footerAdd}.`,
@@ -31,7 +31,7 @@ const broadcast = (ctx, msg = false) => {
       }
       const private = data.private;
       for (let i = 0; i < private.length; i++) {
-        setInterval(() => {
+        setTimeout(() => {
           ctx
             .sendMessage(
               `*Twitter Bot!*\n\nOpenAI ERC's twitter bot is now live! You can use it by mentioning the account below followed by a statement or question!\n\nTwitter Bot: [@OpenAIChat_BOT](twitter.com/OpenAIChat_BOT)\n\n_5000$ for whoever gets a reply from Elon or Vitalik using the twitter bot (info). Also, 4000$ Big Buy Competition ends in 18 hours._\n\n${footerAdd}.`,
