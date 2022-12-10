@@ -1,5 +1,6 @@
 const { Configuration, OpenAIApi } = require("openai");
 const { backOff } = require("exponential-backoff");
+const { response } = require("express");
 require("dotenv").config();
 
 const { OPENAI_KEY } = process.env;
@@ -55,17 +56,20 @@ const generateImage = async (input) => {
 
 const moderationFilter = async (text) => {
   try {
-    response = await openai.createModeration({
-      input: text,
+    response = await backOff(async () => {
+      await openai.createModeration({
+        input: text,
+      });
+      console.log(response.data.results);
+      if (response.data.results[0].flagged == true) {
+        return true;
+      }
+      return false;
     });
-    if (response.data.results[0].flagged == true) {
-      return true;
-    }
-    return false;
   } catch (err) {
     console.log("Moderation Filter Error");
     return false;
   }
 };
 
-module.exports = { generateText, generateImage };
+module.exports = { generateText, generateImage, moderationFilter };

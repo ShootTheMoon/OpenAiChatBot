@@ -89,6 +89,10 @@ const sendTextHandler = (ctx, response) => {
     const messageId = ctx.message.message_id;
     let start = 0;
     let end = MAX_SIZE;
+    if (response === "_Given text violates OpenAI's Content Policy_") {
+      ctx.reply(`${response}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      return;
+    }
     if (response) {
       const msgAmount = response.length / MAX_SIZE;
       for (let i = 0; i < msgAmount; i++) {
@@ -112,10 +116,9 @@ const sendTextHandler = (ctx, response) => {
           end = end + MAX_SIZE;
         }, 100);
       }
-    } else {
-      ctx.reply(`_Err, Please try again_\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     }
   } catch (err) {
+    ctx.reply(`_Err, Please try again_\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     console.log(err);
   }
 };
@@ -192,6 +195,10 @@ bot.command((ctx) => {
             return;
           }
           generateImage(question).then((response) => {
+            if (response === "_Given text violates OpenAI's Content Policy_") {
+              ctx.reply(`${response}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+              return;
+            }
             if (response) {
               ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${question}\n\n${footerAdd}`, reply_to_message_id: messageId }).catch((err) => console.log(err));
             }
