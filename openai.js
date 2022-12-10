@@ -16,10 +16,11 @@ const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 const { generateImage, generateText } = require("./utils/generate");
 const { chatHandler, sortData, getMetrics } = require("./utils/groupHandlers");
 const { profanityFilter } = require("./utils/profanityFilter");
+const req = require("express/lib/request");
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://3dd5-2601-589-4d80-16d0-b4bf-e19c-5fb7-7bbd.ngrok.io";
+  serverUrl = "https://135a-2601-5ca-c300-47f0-3d18-d612-3cb0-3189.ngrok.io";
 }
 
 const bot = new Telegraf(TOKEN);
@@ -63,6 +64,62 @@ const blacklistGroup = (id) => {
   return "Chat already blacklisted";
 };
 
+const reqQueueTxt = [];
+const ctxQueueTxt = [];
+const sendCallHandler = async (ctx, question) => {
+  reqQueueTxt.push(question);
+  ctxQueueTxt.push(ctx);
+
+  if (reqQueueTxt.length >= 5) {
+    const reqQueue = [...reqQueueTxt];
+    const ctxQueue = [...ctxQueueTxt];
+    reqQueueTxt.length = 0;
+    ctxQueueTxt.length = 0;
+    console.log(reqQueue);
+    const resArray = await generateText(reqQueue);
+    for (let i = 0; i < resArray[0].length; i++) {
+      sendTextHandler(ctxQueue[i], resArray[0][i].text);
+    }
+  }
+};
+
+// Send out text responses
+const sendTextHandler = (ctx, response) => {
+  try {
+    const messageId = ctx.message.message_id;
+    let start = 0;
+    let end = MAX_SIZE;
+    if (response) {
+      const msgAmount = response.length / MAX_SIZE;
+      for (let i = 0; i < msgAmount; i++) {
+        setTimeout(() => {
+          ctx
+            .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAdd}`, {
+              parse_mode: "Markdown",
+              disable_web_page_preview: true,
+              reply_to_message_id: messageId,
+            })
+            .catch((err) =>
+              ctx.reply(`${response.slice(start, end)}`, {
+                disable_web_page_preview: true,
+                reply_to_message_id: messageId,
+              })
+            )
+            .catch((err) => {
+              ctx.reply(`_Err, Please try again_\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            });
+          start = start + MAX_SIZE;
+          end = end + MAX_SIZE;
+        }, 100);
+      }
+    } else {
+      ctx.reply(`_Err, Please try again_\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 // On /start
 bot.start((ctx) => {
   try {
@@ -80,97 +137,65 @@ bot.command((ctx) => {
     // Check for profanity
     // Check if blacklisted
     if (command.split(" ")[0].toLowerCase() === "/ask") {
-      if (chatBlacklistHandler(chatId) === false) {
-        const question = command.slice(5);
-        // Check if command is empty
-        if (!question) {
-          ctx.reply(`*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      if (chatBlacklistHandler(chatId) != false) {
+        return;
+      }
+      const question = command.slice(5);
+      // Check if command is empty
+      if (!question) {
+        ctx.reply(`*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      } else {
+        // Check time restriction
+        const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+        logChat(ctx, question);
+        if (chatType === "group") {
+          ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else if (chatType === "private") {
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // Check time restriction
-          const [chatType, timeLeft] = chatHandler(ctx.message.chat);
-          logChat(ctx, question);
-          if (chatType === "group") {
-            ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          } else if (chatType === "private") {
-            ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          } else {
-            if (profanityFilter(command) === true) {
-              let username = ctx.message.chat.username;
-              if (!username) {
-                username = ctx.update.message.from.username;
-              }
-              ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-              ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
-              return;
+          if (profanityFilter(command) === true) {
+            let username = ctx.message.chat.username;
+            if (!username) {
+              username = ctx.update.message.from.username;
             }
-            generateText(question).then((response) => {
-              if (response[1] === "text") {
-                let start = 0;
-                let end = MAX_SIZE;
-                const msgAmount = response[0].length / MAX_SIZE;
-                for (let i = 0; i < msgAmount; i++) {
-                  setTimeout(() => {
-                    ctx
-                      .reply(`${response[0].slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAdd}`, {
-                        parse_mode: "Markdown",
-                        disable_web_page_preview: true,
-                        reply_to_message_id: messageId,
-                      })
-                      .catch((err) =>
-                        ctx.reply(`${response[0].slice(start, end)}`, {
-                          disable_web_page_preview: true,
-                          reply_to_message_id: messageId,
-                        })
-                      )
-                      .catch((err) => {
-                        console.log(err);
-                      });
-                    start = start + MAX_SIZE;
-                    end = end + MAX_SIZE;
-                  }, 100);
-                }
-              } else if (response[1] === "violation") {
-                ctx.reply(`${response[0]}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-              }
-            });
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
+            return;
           }
+          sendCallHandler(ctx, question);
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/aski") {
-      if (chatBlacklistHandler(chatId) === false) {
-        const question = command.slice(6);
-        // Check if command is empty
-        if (!question) {
-          ctx.reply(`*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      if (chatBlacklistHandler(chatId) != false) {
+        return;
+      }
+      const question = command.slice(6);
+      // Check if command is empty
+      if (!question) {
+        ctx.reply(`*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      } else {
+        // Check time restriction
+        const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+        logChat(ctx, question);
+        if (chatType === "group") {
+          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else if (chatType === "private") {
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // Check time restriction
-          const [chatType, timeLeft] = chatHandler(ctx.message.chat);
-          logChat(ctx, question);
-          if (chatType === "group") {
-            ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          } else if (chatType === "private") {
-            ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          } else {
-            if (question) {
-              if (profanityFilter(command) === true) {
-                let username = ctx.message.chat.username;
-                if (!username) {
-                  username = ctx.update.message.from.username;
-                }
-                ctx.reply(`*Watch your mouth*\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-                ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
-                return;
-              }
-              generateImage(question).then((response) => {
-                if (response[1] === "image") {
-                  ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${question}\n\n${footerAdd}`, reply_to_message_id: messageId }).catch((err) => console.log(err));
-                } else if (response[1] === "violation") {
-                  console.log("violation");
-                  ctx.reply(`${response[0]}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-                }
-              });
+          if (profanityFilter(command) === true) {
+            let username = ctx.message.chat.username;
+            if (!username) {
+              username = ctx.update.message.from.username;
             }
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAdd}.`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
+            return;
           }
+          generateImage(question).then((response) => {
+            if (response) {
+              ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${question}\n\n${footerAdd}`, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            }
+          });
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
