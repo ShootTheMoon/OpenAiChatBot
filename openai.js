@@ -71,6 +71,7 @@ const sendCallHandler = async (ctx, question) => {
   ctxQueueTxt.push(ctx);
 
   if (reqQueueTxt.length >= 5) {
+    console.log(reqQueueTxt);
     const reqQueue = [...reqQueueTxt];
     const ctxQueue = [...ctxQueueTxt];
     reqQueueTxt.length = 0;
