@@ -17,10 +17,11 @@ const { generateImage, generateText, moderationFilter } = require("./utils/gener
 const { chatHandler, sortData, getMetrics } = require("./utils/groupHandlers");
 const { profanityFilter, addToProfanityList } = require("./utils/profanityFilter");
 const { broadcast } = require("./utils/broadcastMessage");
+const { Console } = require("console");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://ed47-2601-5ca-c300-47f0-3d18-d612-3cb0-3189.ngrok.io";
+  serverUrl = "https://1287-2601-5ca-c300-47f0-dc00-8282-dae3-6c68.ngrok.io";
 }
 
 const bot = new Telegraf(TOKEN);
@@ -91,7 +92,7 @@ const sendCallHandler = async (ctx, question, type) => {
   } else if (type === "image") {
     reqQueueImg.push(question);
     ctxQueueImg.push(ctx);
-    if (reqQueueImg.length >= 3) {
+    if (reqQueueImg.length >= 1) {
       const reqQueue = [...reqQueueImg];
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
@@ -112,15 +113,40 @@ const sendCallHandler = async (ctx, question, type) => {
 };
 
 const sendImageHandler = (photo, caption, ctx) => {
-  ctx
-    .replyWithPhoto(photo, {
-      parse_mode: "Markdown",
-      caption: `${caption}\n\n${footerAdd}`,
-      reply_to_message_id: ctx.message.message_id,
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  try {
+    if (ctx.message) {
+      ctx
+        .replyWithPhoto(photo, {
+          parse_mode: "Markdown",
+          caption: `${caption}\n\n${footerAdd}`,
+          reply_to_message_id: ctx.message.message_id,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: "Retry", callback_data: "retryImg" },
+                { text: "Enhance", callback_data: "enhanceImg" },
+                { text: "Pixelate", callback_data: "pixelateImg" },
+              ],
+            ],
+          },
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      // const callbackType = ctx.update.callback_query.data;
+      ctx
+        .replyWithPhoto(photo, {
+          parse_mode: "Markdown",
+          caption: `${caption}\n\n${footerAdd}`,
+          reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      ctx.answerCbQuery();
+    }
+  } catch (err) {}
 };
 
 // Send out text responses
@@ -171,6 +197,78 @@ bot.start((ctx) => {
       .catch((err) => console.log(err));
   } catch (err) {}
 });
+
+bot.action("enhanceImg", (ctx) => {
+  try {
+    const chat = ctx.update.callback_query.message.chat;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery();
+    }
+    const [chatType, timeLeft] = chatHandler(chat);
+    if (chatType === "group") {
+      ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+      ctx.answerCbQuery();
+    } else if (chatType === "private") {
+      ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+      ctx.answerCbQuery();
+    } else {
+      let message = ctx.update.callback_query.message.reply_to_message.text;
+      message = message.slice(6);
+      message += ", ultra realistic, 4k, intricate details,abstract, full hd render + 3d octane render +4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details + octane render + 8k";
+      sendCallHandler(ctx, message, "image");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+bot.action("pixelateImg", (ctx) => {
+  try {
+    const chat = ctx.update.callback_query.message.chat;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery();
+    }
+    const [chatType, timeLeft] = chatHandler(chat);
+    if (chatType === "group") {
+      ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+      ctx.answerCbQuery();
+    } else if (chatType === "private") {
+      ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+      ctx.answerCbQuery();
+    } else {
+      let message = ctx.update.callback_query.message.reply_to_message.text;
+      message = message.slice(6);
+      message += ", in a vaporwave style, as pixel art, in a photorealistic style";
+      sendCallHandler(ctx, message, "image");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+bot.action("retryImg", (ctx) => {
+  try {
+    const chat = ctx.update.callback_query.message.chat;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery();
+    }
+    const [chatType, timeLeft] = chatHandler(chat);
+    if (chatType === "group") {
+      ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+      ctx.answerCbQuery();
+    } else if (chatType === "private") {
+      ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+      ctx.answerCbQuery();
+    } else {
+      let message = ctx.update.callback_query.message.reply_to_message.text;
+      message = message.slice(6);
+      sendCallHandler(ctx, message, "image");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // On bot command
 bot.command((ctx) => {
   try {

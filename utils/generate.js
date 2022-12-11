@@ -25,13 +25,11 @@ const generateText = async (input) => {
           presence_penalty: 0.5,
         });
       });
-      console.log(response.data);
       return [response.data.choices];
     } else {
       return ["_Given text violates OpenAI's Content Policy_"];
     }
   } catch (err) {
-    console.log(err);
     return [false];
   }
 };
@@ -40,10 +38,12 @@ const generateImage = async (input) => {
   try {
     const filter = false;
     if (filter === false) {
-      const response = await openai.createImage({
-        prompt: input,
-        n: 1,
-        size: "512x512",
+      const response = await backOff(async () => {
+        return await openai.createImage({
+          prompt: input,
+          n: 1,
+          size: "512x512",
+        });
       });
       return [response.data.data[0].url];
     } else {
