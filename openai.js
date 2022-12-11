@@ -7,7 +7,8 @@ const MAX_SIZE = 3500;
 const moonsId = 2056782424;
 
 const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC)";
-const footerAdd = `[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)`;
+// const footerAdd = `[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)`;
+const footerAdd = `Ad: [AVATAR 2.0 - Massive Marketing](https://t.me/avatar2fans) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0x8198f65f8c75beaa7030f194bdf7850f72082afa)\n${openAiAd}`;
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
@@ -21,7 +22,7 @@ const { Console } = require("console");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://1287-2601-5ca-c300-47f0-dc00-8282-dae3-6c68.ngrok.io";
+  serverUrl = "https://a66e-2601-5ca-c300-47f0-dc00-8282-dae3-6c68.ngrok.io";
 }
 
 const bot = new Telegraf(TOKEN);
