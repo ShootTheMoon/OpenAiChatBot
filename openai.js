@@ -20,7 +20,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://948f-2601-5ca-c300-47f0-3d18-d612-3cb0-3189.ngrok.io";
+  serverUrl = "https://ed47-2601-5ca-c300-47f0-3d18-d612-3cb0-3189.ngrok.io";
 }
 
 const bot = new Telegraf(TOKEN);
@@ -69,6 +69,7 @@ const reqQueueImg = [];
 const ctxQueueImg = [];
 const sendCallHandler = async (ctx, question, type) => {
   if (type === "text") {
+    console.log(question);
     reqQueueTxt.push(question);
     ctxQueueTxt.push(ctx);
     if (reqQueueTxt.length >= 5) {
@@ -99,9 +100,7 @@ const sendCallHandler = async (ctx, question, type) => {
       for (let i = 0; i < reqQueue.length; i++) {
         if (!flags[i].flagged) {
           generateImage(reqQueue[i]).then((response) => {
-            ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${reqQueue[i]}\n\n${footerAdd}`, reply_to_message_id: ctx.message.message_id }).catch((err) => {
-              console.log(err);
-            });
+            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
           });
         } else {
           addToProfanityList(reqQueue[i]);
@@ -110,6 +109,18 @@ const sendCallHandler = async (ctx, question, type) => {
       }
     }
   }
+};
+
+const sendImageHandler = (photo, caption, ctx) => {
+  ctx
+    .replyWithPhoto(photo, {
+      parse_mode: "Markdown",
+      caption: `${caption}\n\n${footerAdd}`,
+      reply_to_message_id: ctx.message.message_id,
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // Send out text responses
