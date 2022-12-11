@@ -92,7 +92,7 @@ const sendCallHandler = async (ctx, question, type) => {
   } else if (type === "image") {
     reqQueueImg.push(question);
     ctxQueueImg.push(ctx);
-    if (reqQueueImg.length >= 1) {
+    if (reqQueueImg.length >= 3) {
       const reqQueue = [...reqQueueImg];
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
@@ -134,17 +134,39 @@ const sendImageHandler = (photo, caption, ctx) => {
           console.log(err);
         });
     } else {
-      // const callbackType = ctx.update.callback_query.data;
-      ctx
-        .replyWithPhoto(photo, {
-          parse_mode: "Markdown",
-          caption: `${caption}\n\n${footerAdd}`,
-          reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      ctx.answerCbQuery();
+      const callbackType = ctx.update.callback_query.data;
+      if (callbackType === "retryImg") {
+        ctx
+          .replyWithPhoto(photo, {
+            parse_mode: "Markdown",
+            caption: `${caption}\n\n${footerAdd}`,
+            reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: "Retry", callback_data: "retryImg" },
+                  { text: "Enhance", callback_data: "enhanceImg" },
+                  { text: "Pixelate", callback_data: "pixelateImg" },
+                ],
+              ],
+            },
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        ctx.answerCbQuery();
+      } else {
+        ctx
+          .replyWithPhoto(photo, {
+            parse_mode: "Markdown",
+            caption: `${caption}\n\n${footerAdd}`,
+            reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        ctx.answerCbQuery();
+      }
     }
   } catch (err) {}
 };
