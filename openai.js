@@ -201,21 +201,26 @@ bot.start((ctx) => {
 bot.action("enhanceImg", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery();
-    }
-    const [chatType, timeLeft] = chatHandler(chat);
-    if (chatType === "group") {
-      ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-      ctx.answerCbQuery();
-    } else if (chatType === "private") {
-      ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-      ctx.answerCbQuery();
+    } else if (from === creator) {
+      const [chatType, timeLeft] = chatHandler(chat);
+      if (chatType === "group") {
+        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.answerCbQuery();
+      } else if (chatType === "private") {
+        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.answerCbQuery();
+      } else {
+        let message = ctx.update.callback_query.message.reply_to_message.text;
+        message = message.slice(6);
+        message += ", ultra realistic, 4k, intricate details,abstract, full hd render + 3d octane render +4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details + octane render + 8k";
+        sendCallHandler(ctx, message, "image");
+      }
     } else {
-      let message = ctx.update.callback_query.message.reply_to_message.text;
-      message = message.slice(6);
-      message += ", ultra realistic, 4k, intricate details,abstract, full hd render + 3d octane render +4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details + octane render + 8k";
-      sendCallHandler(ctx, message, "image");
+      ctx.answerCbQuery();
     }
   } catch (err) {
     console.log(err);
@@ -225,21 +230,26 @@ bot.action("enhanceImg", (ctx) => {
 bot.action("pixelateImg", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery();
-    }
-    const [chatType, timeLeft] = chatHandler(chat);
-    if (chatType === "group") {
-      ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-      ctx.answerCbQuery();
-    } else if (chatType === "private") {
-      ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-      ctx.answerCbQuery();
+    } else if (from === creator) {
+      const [chatType, timeLeft] = chatHandler(chat);
+      if (chatType === "group") {
+        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.answerCbQuery();
+      } else if (chatType === "private") {
+        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.answerCbQuery();
+      } else {
+        let message = ctx.update.callback_query.message.reply_to_message.text;
+        message = message.slice(6);
+        message += ", in a vaporwave style, as pixel art, in a photorealistic style";
+        sendCallHandler(ctx, message, "image");
+      }
     } else {
-      let message = ctx.update.callback_query.message.reply_to_message.text;
-      message = message.slice(6);
-      message += ", in a vaporwave style, as pixel art, in a photorealistic style";
-      sendCallHandler(ctx, message, "image");
+      ctx.answerCbQuery();
     }
   } catch (err) {
     console.log(err);
@@ -249,20 +259,25 @@ bot.action("pixelateImg", (ctx) => {
 bot.action("retryImg", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery();
-    }
-    const [chatType, timeLeft] = chatHandler(chat);
-    if (chatType === "group") {
-      ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-      ctx.answerCbQuery();
-    } else if (chatType === "private") {
-      ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-      ctx.answerCbQuery();
+    } else if (from === creator) {
+      const [chatType, timeLeft] = chatHandler(chat);
+      if (chatType === "group") {
+        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.answerCbQuery();
+      } else if (chatType === "private") {
+        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.answerCbQuery();
+      } else {
+        let message = ctx.update.callback_query.message.reply_to_message.text;
+        message = message.slice(6);
+        sendCallHandler(ctx, message, "image");
+      }
     } else {
-      let message = ctx.update.callback_query.message.reply_to_message.text;
-      message = message.slice(6);
-      sendCallHandler(ctx, message, "image");
+      ctx.answerCbQuery();
     }
   } catch (err) {
     console.log(err);
