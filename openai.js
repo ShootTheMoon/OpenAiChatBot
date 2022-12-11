@@ -96,7 +96,6 @@ const sendCallHandler = async (ctx, question, type) => {
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
       const flags = await moderationFilter(reqQueue);
-      console.log(flags);
       for (let i = 0; i < reqQueue.length; i++) {
         if (!flags[i].flagged) {
           generateImage(reqQueue[i]).then((response) => {
