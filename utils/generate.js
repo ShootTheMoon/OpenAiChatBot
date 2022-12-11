@@ -56,18 +56,15 @@ const generateImage = async (input) => {
 
 const moderationFilter = async (text) => {
   try {
-    response = await backOff(async () => {
-      await openai.createModeration({
+    console.log(text);
+    const response = await backOff(async () => {
+      return await openai.createModeration({
         input: text,
       });
-      console.log(response.data.results);
-      if (response.data.results[0].flagged == true) {
-        return true;
-      }
-      return false;
     });
+    return response.data.results;
   } catch (err) {
-    console.log("Moderation Filter Error");
+    console.log(err);
     return false;
   }
 };

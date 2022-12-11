@@ -1,14 +1,25 @@
-const profanity = ["nigger", "nigga", "fag", "faggot", "kike", "slut", "fagot", "cock", "penis", "tits", "tit", "fuck", "fucker", "fucked", "porn", "whore", "bitch", "anal", "blowjob", "rape", "pussy"];
+const fs = require("fs");
 
 const profanityFilter = (msg) => {
-  for (let i = 0; i < profanity.length; i++) {
-    let regex = new RegExp("\\b(" + profanity[i] + ")\\b");
-    if ((msg.match(regex) == null) == false) {
-      console.log(msg.match(regex) == null);
+  let data = fs.readFileSync("./data/profanityList.json", "utf-8");
+  data = JSON.parse(data);
+  for (let i = 0; i < data.length; i++) {
+    if (msg.toLowerCase() == data[i]) {
+
       return true;
     }
   }
   return false;
 };
 
-module.exports = { profanityFilter };
+const addToProfanityList = (text) => {
+  let data = fs.readFileSync("./data/profanityList.json", "utf-8");
+  data = JSON.parse(data);
+  const found = data.findIndex((txt) => txt === txt);
+  if (found != -1) {
+    data.push(text);
+    fs.writeFileSync("./data/profanityList.json", JSON.stringify(data));
+  }
+};
+
+module.exports = { profanityFilter, addToProfanityList };

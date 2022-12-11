@@ -13,14 +13,14 @@ const footerAdd = `[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.de
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
 // Function Imports
-const { generateImage, generateText } = require("./utils/generate");
+const { generateImage, generateText, moderationFilter } = require("./utils/generate");
 const { chatHandler, sortData, getMetrics } = require("./utils/groupHandlers");
-const { profanityFilter } = require("./utils/profanityFilter");
+const { profanityFilter, addToProfanityList } = require("./utils/profanityFilter");
 const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://969e-2601-5ca-c300-47f0-3d18-d612-3cb0-3189.ngrok.io";
+  serverUrl = "https://948f-2601-5ca-c300-47f0-3d18-d612-3cb0-3189.ngrok.io";
 }
 
 const bot = new Telegraf(TOKEN);
@@ -54,7 +54,6 @@ const chatBlacklistHandler = (id) => {
 const blacklistGroup = (id) => {
   let data = fs.readFileSync("./data/blacklistData.json", "utf-8");
   data = JSON.parse(data);
-
   const found = data.findIndex((chatId) => chatId === id);
   if (found === -1) {
     data.push(parseInt(id));
@@ -66,19 +65,50 @@ const blacklistGroup = (id) => {
 
 const reqQueueTxt = [];
 const ctxQueueTxt = [];
-const sendCallHandler = async (ctx, question) => {
-  reqQueueTxt.push(question);
-  ctxQueueTxt.push(ctx);
-
-  if (reqQueueTxt.length >= 5) {
-    console.log(reqQueueTxt);
-    const reqQueue = [...reqQueueTxt];
-    const ctxQueue = [...ctxQueueTxt];
-    reqQueueTxt.length = 0;
-    ctxQueueTxt.length = 0;
-    const resArray = await generateText(reqQueue);
-    for (let i = 0; i < resArray[0].length; i++) {
-      sendTextHandler(ctxQueue[i], resArray[0][i].text);
+const reqQueueImg = [];
+const ctxQueueImg = [];
+const sendCallHandler = async (ctx, question, type) => {
+  if (type === "text") {
+    reqQueueTxt.push(question);
+    ctxQueueTxt.push(ctx);
+    if (reqQueueTxt.length >= 5) {
+      const reqQueue = [...reqQueueTxt];
+      const ctxQueue = [...ctxQueueTxt];
+      reqQueueTxt.length = 0;
+      ctxQueueTxt.length = 0;
+      const flags = await moderationFilter(reqQueue);
+      const resArray = await generateText(reqQueue);
+      for (let i = 0; i < resArray[0].length; i++) {
+        if (!flags[i].flagged) {
+          sendTextHandler(ctxQueue[i], resArray[0][i].text);
+        } else {
+          addToProfanityList(reqQueue[i]);
+          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+        }
+      }
+    }
+  } else if (type === "image") {
+    reqQueueImg.push(question);
+    ctxQueueImg.push(ctx);
+    if (reqQueueImg.length >= 3) {
+      const reqQueue = [...reqQueueImg];
+      const ctxQueue = [...ctxQueueImg];
+      reqQueueImg.length = 0;
+      ctxQueueImg.length = 0;
+      const flags = await moderationFilter(reqQueue);
+      console.log(flags);
+      for (let i = 0; i < reqQueue.length; i++) {
+        if (!flags[i].flagged) {
+          generateImage(reqQueue[i]).then((response) => {
+            ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${reqQueue[i]}\n\n${footerAdd}`, reply_to_message_id: ctx.message.message_id }).catch((err) => {
+              console.log(err);
+            });
+          });
+        } else {
+          addToProfanityList(reqQueue[i]);
+          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+        }
+      }
     }
   }
 };
@@ -156,16 +186,11 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(command) === true) {
-            let username = ctx.message.chat.username;
-            if (!username) {
-              username = ctx.update.message.from.username;
-            }
+          if (profanityFilter(question) === true) {
             ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
             return;
           }
-          sendCallHandler(ctx, question);
+          sendCallHandler(ctx, question, "text");
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/aski") {
@@ -185,24 +210,11 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(command) === true) {
-            let username = ctx.message.chat.username;
-            if (!username) {
-              username = ctx.update.message.from.username;
-            }
+          if (profanityFilter(question) === true) {
             ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            ctx.reply(`@${username} Msg: ${command}.`, { chat_id: -1001843299957, parse_mode: "Markdown" }).catch((err) => console.log(err));
             return;
           }
-          generateImage(question).then((response) => {
-            if (response === "_Given text violates OpenAI's Content Policy_") {
-              ctx.reply(`${response}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-              return;
-            }
-            if (response) {
-              ctx.replyWithPhoto(response[0], { parse_mode: "Markdown", caption: `${question}\n\n${footerAdd}`, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            }
-          });
+          sendCallHandler(ctx, question, "image");
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
