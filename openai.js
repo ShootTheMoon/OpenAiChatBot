@@ -74,7 +74,7 @@ const getFooterAd = () => {
 };
 getFooterAd();
 
-const toggleFooterAds = (toggle) => {
+const toggleFooterAd = (toggle) => {
   let data = fs.readFileSync("./data/footerAd.json", "utf-8");
   data = JSON.parse(data);
   if (toggle === "on") {
@@ -86,6 +86,13 @@ const toggleFooterAds = (toggle) => {
     fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
     return "Ads disabled";
   }
+};
+
+const setFooterAd = (text) => {
+  let data = fs.readFileSync("./data/footerAd.json", "utf-8");
+  data = JSON.parse(data);
+  data.text = text;
+  fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
 };
 
 // On /start
@@ -251,10 +258,15 @@ bot.command((ctx) => {
     } else if (command.split(" ")[0].toLowerCase() === "/ads" && ctx.message.from.id === moonsId) {
       const message = command.slice(5);
       console.log(message);
-      const res = toggleFooterAds(message);
+      const res = toggleFooterAd(message);
       if (res) {
         ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       }
+    } else if (command.split(" ")[0].toLowerCase() === "/setad" && ctx.message.from.id === moonsId) {
+      const message = command.slice(7);
+      console.log(message);
+      setFooterAd(message);
+      ctx.reply(`This is how your ad will look when it is live!\n\nAd: ${message}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     }
   } catch (err) {
     console.log(err);
