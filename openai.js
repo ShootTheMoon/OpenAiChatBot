@@ -3,26 +3,24 @@ require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const fs = require("fs");
 
-const MAX_SIZE = 3500;
 const moonsId = 2056782424;
 
-const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC)";
-// const footerAdd = `[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)`;
-const footerAdd = `Ad: [Launching Soon](http://www.twitter.com/metatoolserc) | [MetaToolsERC](http://www.metatools.tech/) | [TG](https://t.me/MetaToolsERC) | [Medium](https://link.medium.com/hiOfmeLxGvb)`;
+const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)";
+let footerAd = "";
 
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
 // Function Imports
-const { generateImage, generateText, moderationFilter } = require("./utils/generate");
-const { chatHandler, sortData, getMetrics } = require("./utils/groupHandlers");
-const { profanityFilter, addToProfanityList } = require("./utils/profanityFilter");
-const { broadcast } = require("./utils/broadcastMessage");
-const { Console } = require("console");
+// const { generateImage, generateText, moderationFilter } = require("./utils/generate");
+const { chatHandler, getMetrics } = require("./utils/groupHandlers");
+const { sendCallHandler } = require("./utils/messageHandlers");
+const { profanityFilter } = require("./utils/profanityFilter");
+// const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://b3c9-2601-5ca-c300-47f0-4807-89e9-3b78-1619.ngrok.io";
+  serverUrl = "https://42e9-2601-5ca-c300-47f0-40eb-b1bc-4660-ed1e.ngrok.io";
 }
 
 const bot = new Telegraf(TOKEN);
@@ -65,149 +63,28 @@ const blacklistGroup = (id) => {
   return "Chat already blacklisted";
 };
 
-const reqQueueTxt = [];
-const ctxQueueTxt = [];
-const reqQueueImg = [];
-const ctxQueueImg = [];
-const sendCallHandler = async (ctx, question, type) => {
-  if (type === "text") {
-    reqQueueTxt.push(question);
-    ctxQueueTxt.push(ctx);
-    if (reqQueueTxt.length >= 5) {
-      const reqQueue = [...reqQueueTxt];
-      const ctxQueue = [...ctxQueueTxt];
-      reqQueueTxt.length = 0;
-      ctxQueueTxt.length = 0;
-      const flags = await moderationFilter(reqQueue);
-      const resArray = await generateText(reqQueue);
-      for (let i = 0; i < resArray[0].length; i++) {
-        if (!flags[i].flagged) {
-          sendTextHandler(ctxQueue[i], resArray[0][i].text);
-        } else {
-          addToProfanityList(reqQueue[i]);
-          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
-        }
-      }
-    }
-  } else if (type === "image") {
-    reqQueueImg.push(question);
-    ctxQueueImg.push(ctx);
-    if (reqQueueImg.length >= 3) {
-      const reqQueue = [...reqQueueImg];
-      const ctxQueue = [...ctxQueueImg];
-      reqQueueImg.length = 0;
-      ctxQueueImg.length = 0;
-      const flags = await moderationFilter(reqQueue);
-      for (let i = 0; i < reqQueue.length; i++) {
-        if (!flags[i].flagged) {
-          generateImage(reqQueue[i]).then((response) => {
-            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
-          });
-        } else {
-          addToProfanityList(reqQueue[i]);
-          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
-        }
-      }
-    }
+const getFooterAd = () => {
+  let data = fs.readFileSync("./data/footerAd.json", "utf-8");
+  data = JSON.parse(data);
+  if (data.enabled) {
+    footerAd = "Ad: " + data.text;
+  } else {
+    footerAd = openAiAd;
   }
 };
+getFooterAd();
 
-const sendImageHandler = (photo, caption, ctx) => {
-  try {
-    if (ctx.message) {
-      ctx
-        .replyWithPhoto(photo, {
-          parse_mode: "Markdown",
-          caption: `${caption}\n\n${footerAdd}`,
-          reply_to_message_id: ctx.message.message_id,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: "Retry", callback_data: "retryImg" },
-                { text: "Enhance", callback_data: "enhanceImg" },
-                { text: "Pixelate", callback_data: "pixelateImg" },
-              ],
-            ],
-          },
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else {
-      const callbackType = ctx.update.callback_query.data;
-      if (callbackType === "retryImg") {
-        ctx
-          .replyWithPhoto(photo, {
-            parse_mode: "Markdown",
-            caption: `${caption}\n\n${footerAdd}`,
-            reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: "Retry", callback_data: "retryImg" },
-                  { text: "Enhance", callback_data: "enhanceImg" },
-                  { text: "Pixelate", callback_data: "pixelateImg" },
-                ],
-              ],
-            },
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-        ctx.answerCbQuery().catch((err) => {});
-      } else {
-        ctx
-          .replyWithPhoto(photo, {
-            parse_mode: "Markdown",
-            caption: `${caption}\n\n${footerAdd}`,
-            reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-        ctx.answerCbQuery().catch((err) => {});
-      }
-    }
-  } catch (err) {}
-};
-
-// Send out text responses
-const sendTextHandler = (ctx, response) => {
-  try {
-    const messageId = ctx.message.message_id;
-    let start = 0;
-    let end = MAX_SIZE;
-    if (response === "_Given text violates OpenAI's Content Policy_") {
-      ctx.reply(`${response}\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-      return;
-    }
-    if (response) {
-      const msgAmount = response.length / MAX_SIZE;
-      for (let i = 0; i < msgAmount; i++) {
-        setTimeout(() => {
-          ctx
-            .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAdd}`, {
-              parse_mode: "Markdown",
-              disable_web_page_preview: true,
-              reply_to_message_id: messageId,
-            })
-            .catch((err) =>
-              ctx.reply(`${response.slice(start, end)}`, {
-                disable_web_page_preview: true,
-                reply_to_message_id: messageId,
-              })
-            )
-            .catch((err) => {
-              ctx.reply(`_Err, Please try again_\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            });
-          start = start + MAX_SIZE;
-          end = end + MAX_SIZE;
-        }, 100);
-      }
-    }
-  } catch (err) {
-    ctx.reply(`_Err, Please try again_\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-    console.log(err);
+const toggleFooterAds = (toggle) => {
+  let data = fs.readFileSync("./data/footerAd.json", "utf-8");
+  data = JSON.parse(data);
+  if (toggle === "on") {
+    data.enabled = true;
+    fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
+    return "Ads enabled";
+  } else if (toggle === "off") {
+    data.enabled = false;
+    fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
+    return "Ads disabled";
   }
 };
 
@@ -230,10 +107,10 @@ bot.action("enhanceImg", (ctx) => {
     } else if (from === creator) {
       const [chatType, timeLeft] = chatHandler(chat);
       if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
         ctx.answerCbQuery().catch((err) => {});
       } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
         ctx.answerCbQuery().catch((err) => {});
       } else {
         let message = ctx.update.callback_query.message.reply_to_message.text;
@@ -259,10 +136,10 @@ bot.action("pixelateImg", (ctx) => {
     } else if (from === creator) {
       const [chatType, timeLeft] = chatHandler(chat);
       if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
         ctx.answerCbQuery().catch((err) => {});
       } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
         ctx.answerCbQuery().catch((err) => {});
       } else {
         let message = ctx.update.callback_query.message.reply_to_message.text;
@@ -288,10 +165,10 @@ bot.action("retryImg", (ctx) => {
     } else if (from === creator) {
       const [chatType, timeLeft] = chatHandler(chat);
       if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
         ctx.answerCbQuery().catch((err) => {});
       } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
+        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
         ctx.answerCbQuery().catch((err) => {});
       } else {
         let message = ctx.update.callback_query.message.reply_to_message.text;
@@ -321,18 +198,18 @@ bot.command((ctx) => {
       const question = command.slice(5);
       // Check if command is empty
       if (!question) {
-        ctx.reply(`*Use /ask followed by a question or statement to generate a response*\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /ask followed by a question or statement to generate a response*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
         logChat(ctx, question);
         if (chatType === "group") {
-          ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else if (chatType === "private") {
-          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
           if (profanityFilter(question) === true) {
-            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
             return;
           }
           sendCallHandler(ctx, question, "text");
@@ -345,18 +222,18 @@ bot.command((ctx) => {
       const question = command.slice(6);
       // Check if command is empty
       if (!question) {
-        ctx.reply(`*Use /aski followed by a depiction to generate an image*\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /aski followed by a depiction to generate an image*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
         logChat(ctx, question);
         if (chatType === "group") {
-          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else if (chatType === "private") {
-          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
           if (profanityFilter(question) === true) {
-            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAdd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
             return;
           }
           sendCallHandler(ctx, question, "image");
@@ -371,11 +248,14 @@ bot.command((ctx) => {
       const group = command.slice(14);
       const res = blacklistGroup(group);
       ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+    } else if (command.split(" ")[0].toLowerCase() === "/ads" && ctx.message.from.id === moonsId) {
+      const message = command.slice(5);
+      console.log(message);
+      const res = toggleFooterAds(message);
+      if (res) {
+        ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      }
     }
-    //  else if (command.split(" ")[0].toLowerCase() === "/broadcast" && ctx.message.from.id === moonsId) {
-    //   const message = command.slice(11);
-    //   broadcast(ctx, message);
-    // }
   } catch (err) {
     console.log(err);
   }
