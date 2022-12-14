@@ -11,6 +11,7 @@
   "author": "Moon Rocket",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/text-to-speech": "^4.0.4",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.2",
@@ -19,6 +20,7 @@
     "nodemon": "^2.0.19",
     "openai": "^3.1.0",
     "telegraf": "^4.11.2",
+    "uuid": "^9.0.0",
     "web3": "^1.7.5",
     "web3-providers-ws": "^1.8.1"
   }

@@ -5,23 +5,22 @@ const fs = require("fs");
 
 const moonsId = 2056782424;
 
-const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)";
-let footerAd = "";
-
 // Global variables
 const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
 // Function Imports
-// const { generateImage, generateText, moderationFilter } = require("./utils/generate");
 const { chatHandler, getMetrics } = require("./utils/groupHandlers");
 const { sendCallHandler } = require("./utils/messageHandlers");
 const { profanityFilter } = require("./utils/profanityFilter");
+const { setFooterAd, toggleFooterAd, getFooterAd } = require("./utils/footerHandlers");
 // const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://42e9-2601-5ca-c300-47f0-40eb-b1bc-4660-ed1e.ngrok.io";
+  serverUrl = "https://9c57-2601-5ca-c300-47f0-48d3-6159-a26c-8d6a.ngrok.io";
 }
+
+let footerAd = getFooterAd();
 
 const bot = new Telegraf(TOKEN);
 
@@ -61,38 +60,6 @@ const blacklistGroup = (id) => {
     return "Chat Id added to blacklist";
   }
   return "Chat already blacklisted";
-};
-
-const getFooterAd = () => {
-  let data = fs.readFileSync("./data/footerAd.json", "utf-8");
-  data = JSON.parse(data);
-  if (data.enabled) {
-    footerAd = "Ad: " + data.text;
-  } else {
-    footerAd = openAiAd;
-  }
-};
-getFooterAd();
-
-const toggleFooterAd = (toggle) => {
-  let data = fs.readFileSync("./data/footerAd.json", "utf-8");
-  data = JSON.parse(data);
-  if (toggle === "on") {
-    data.enabled = true;
-    fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
-    return "Ads enabled";
-  } else if (toggle === "off") {
-    data.enabled = false;
-    fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
-    return "Ads disabled";
-  }
-};
-
-const setFooterAd = (text) => {
-  let data = fs.readFileSync("./data/footerAd.json", "utf-8");
-  data = JSON.parse(data);
-  data.text = text;
-  fs.writeFileSync("./data/footerAd.json", JSON.stringify(data));
 };
 
 // On /start
@@ -202,49 +169,82 @@ bot.command((ctx) => {
       if (chatBlacklistHandler(chatId) != false) {
         return;
       }
-      const question = command.slice(5);
+      const input = command.slice(5);
       // Check if command is empty
-      if (!question) {
+      if (!input) {
         ctx.reply(`*Use /ask followed by a question or statement to generate a response*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
-        logChat(ctx, question);
+        logChat(ctx, input);
         if (chatType === "group") {
           ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(question) === true) {
+          if (profanityFilter(input) === true) {
             ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
             return;
           }
-          sendCallHandler(ctx, question, "text");
+          sendCallHandler(ctx, input, "text");
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/aski") {
       if (chatBlacklistHandler(chatId) != false) {
         return;
       }
-      const question = command.slice(6);
+      const input = command.slice(6);
       // Check if command is empty
-      if (!question) {
+      if (!input) {
         ctx.reply(`*Use /aski followed by a depiction to generate an image*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
-        logChat(ctx, question);
+        logChat(ctx, input);
         if (chatType === "group") {
           ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(question) === true) {
+          if (profanityFilter(input) === true) {
             ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
             return;
           }
-          sendCallHandler(ctx, question, "image");
+          sendCallHandler(ctx, input, "image");
         }
+      }
+    } else if (command.split(" ")[0].toLowerCase() === "/asks") {
+      if (chatBlacklistHandler(chatId) != false) {
+        return;
+      }
+      const input = command.slice(6);
+      if (!input) {
+        ctx.reply(`*Use /asks followed by a question or statement to generate a audio response*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      } else {
+        // Check time restriction
+        const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+        logChat(ctx, input);
+        if (chatType === "group") {
+          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else if (chatType === "private") {
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else {
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
+          sendCallHandler(ctx, input, "aiaudio");
+        }
+      }
+    } else if (command.split(" ")[0].toLowerCase() === "/speak") {
+      if (chatBlacklistHandler(chatId) != false) {
+        return;
+      }
+      const input = command.slice(7);
+      if (!input) {
+        ctx.reply(`*Use /speak followed text to convert into audio*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      } else {
+        sendCallHandler(ctx, input, "audio");
       }
     } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
       const stats = getMetrics(chatId);
@@ -257,15 +257,15 @@ bot.command((ctx) => {
       ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     } else if (command.split(" ")[0].toLowerCase() === "/ads" && ctx.message.from.id === moonsId) {
       const message = command.slice(5);
-      console.log(message);
       const res = toggleFooterAd(message);
+      footerAd = getFooterAd();
       if (res) {
         ctx.reply(`*${res}*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       }
     } else if (command.split(" ")[0].toLowerCase() === "/setad" && ctx.message.from.id === moonsId) {
       const message = command.slice(7);
-      console.log(message);
       setFooterAd(message);
+      footerAd = getFooterAd();
       ctx.reply(`This is how your ad will look when it is live!\n\nAd: ${message}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     }
   } catch (err) {

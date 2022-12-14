@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "woven-amulet-332517",
+  "private_key_id": "5f8cd8636bba7a82a85344929cac1975c4b27f29",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDHz5vFJXKYtYGv\npxFkyj7Ab7gPjdcdm/4dz/v8ljz+wNxycGWnnt/+0ld4+JyziNOLXfqsAgatMft8\n6ky4QGSmJ73p7rI0H5BDf0YMJasgbE7jkZyB7u9LevyEgVC3XWwu0NvhC8Cw55FH\nHkF2Ctf0PTzuvo1a/CXeVVSMXSUfSktADIon+aUuBEcJ6g9qIhIlAyZ+I0XDE7dj\nCf65wza1yMZ+tskAVPpVCBOYeSeu5pFfPTwQTGSnGrbPtZonOK4T/rgUH0FEwKGi\nXYDycuWGoeCHUoIbiOide1+YtkMzb58u86iRdh3G95CmAEtTwWekQXrCg41SV40o\nOD9A5+gXAgMBAAECggEABEvaqcIKNUNjLvo00wnQO0YLsKCYTrAt0MlJ6J6jCsft\n1YjE1CED6FBF247eRl6mTHmwVqYn1kMxXk28FD16Nze6iymmlkf+y5y/I6q5rmr1\nxUnlEhwnnrldwvb0MS/ROtkjKTMd/mUe8rxb+aRLtsThpwaHi+ceZKn0Cp1EG5NC\nfCjUMEZ/MSCXcLs+PVzp3sdMsBLOlnj7hWx8OcucSyknVxS6DdY4HA5ThfNgU/NK\nvnLfJs5zvbZ1ufdru0Ad9a9aOHhqcnuMDA6Wn/fCpNG2xjF+NbOvZHYmi6kH8epQ\ninKJlw4g0zh6pj7BaSiGH/lyBmRiz3yVeVT5diy7kQKBgQDnCjnomAI263izCKnT\ncCmZ4j7gLa3DFlqZM6PhNsK7saTVPGE3Tq572MNaezqnhWO4ovhZDOl94F/fg6Cd\nbz0oT6cvq+aBiWAMzsi0X4kurrLE/oXqLm8c7jp3H92bwf3jrfm9Iqjm08kgDZOE\nFvai5qOeiOpkdPmXovx4qOf/8QKBgQDdZbIcI4mt2fGpvw9udfYQ06VltI8Q5mPL\nuZ3UbiuMxTO/UYWI/hzzfW5AA0DuzIk68ZFKQkj5lEfTftyS3byBmCPV1GkG50/F\njhlaanPC6PIeTncybewWzsucLPx0KXyrtjDOh+SFJ7BLldaaBJPp+5zzuEwgQjY2\nFpt2Fn7whwKBgQCfUgz22QQF7UERbLL3jEwTwtGK89T0R9D3/oVPA90rY2gAZ5++\nbPKjkqm8FmgvJyvKIg/SELZeyEA0uOckSZZJ2wu2MvtEboAetOXwhETsPSon8EBW\naejTcXA9v2qpQxAaVll2VJVWf8sc4F/OYat4UEWaSF4iIgwPxiQF7Kv3cQKBgBNJ\nQZu76MlxO+EKmMCJnBbZKQZUFUZmm3jqwXn44uhPYXOgGV7WrBT17z26StTCko3E\n72AlqA+9wAgHfBV7JWmwpCaDa2bDjapq94Bt14m6GyVStoV5F+DgwNHpBVDlMEwR\nAe1r3xdOXsgm1Fv0XCI83e5JNrB0tB5AF+jQitxPAoGBALzYRJ47N6zsx4TX2cGt\n2OsvAF2L3nwrqhFRew+JMb/CEMWABGHAihyueqrzM8qkeooFpGVu+hLrYi7VHnTh\nXN9GY7DWCGzNOzX/gaz0t+hXKX8uSK+uBtlpuBAvDuyrYlFJizM/eCZ6Vh6bxoui\nCo1B6MVe185TNqYUuw9U3fTp\n-----END PRIVATE KEY-----\n",
+  "client_email": "openaitts@woven-amulet-332517.iam.gserviceaccount.com",
+  "client_id": "114928961893844460793",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/openaitts%40woven-amulet-332517.iam.gserviceaccount.com"
+}
