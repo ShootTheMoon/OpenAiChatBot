@@ -171,4 +171,42 @@ const getMetrics = (id) => {
   return text;
 };
 
-module.exports = { sortData, getMetrics, chatHandler };
+// Log all chat commands
+const logChat = (ctx) => {
+  try {
+    const type = ctx.message.chat.type;
+    if (type === "private") {
+      fs.appendFile("./data/chatData.txt", `\nUser: @${ctx.message.chat.username} - Id: ${ctx.message.from.id} - Text: ${ctx.message.text}`, (err) => {});
+    } else {
+      fs.appendFile("./data/chatData.txt", `\nGroup: ${ctx.message.chat.title} - User: @${ctx.message.from.username} -Text: ${ctx.message.text}`, (err) => {});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+// Filter blacklisted chats
+const chatBlacklistHandler = (id) => {
+  let data = fs.readFileSync("./data/blacklistData.json", "utf-8");
+  data = JSON.parse(data);
+  const found = data.findIndex((chatId) => chatId === id);
+  if (found === -1) {
+    return false;
+  }
+  return true;
+};
+
+// Add to blacklist
+const blacklistGroup = (id) => {
+  let data = fs.readFileSync("./data/blacklistData.json", "utf-8");
+  data = JSON.parse(data);
+  const found = data.findIndex((chatId) => chatId === id);
+  if (found === -1) {
+    data.push(parseInt(id));
+    fs.writeFileSync("./data/blacklistData.json", JSON.stringify(data));
+    return "Chat Id added to blacklist";
+  }
+  return "Chat already blacklisted";
+};
+
+module.exports = { sortData, getMetrics, chatHandler, blacklistGroup, chatBlacklistHandler, logChat };

@@ -35,8 +35,8 @@ const sendCallHandler = async (ctx, input, type) => {
           if (typeQueue[i] === "text") {
             sendTextHandler(ctxQueue[i], resArray[0][i].text);
           } else if (typeQueue[i] === "aiaudio") {
-            generateTextToSpeech(resArray[0][i].text).then((response) => {
-              sendAudioHandler(response, ctxQueue[i]);
+            generateTextToSpeech(resArray[0][i].text, ctxQueue[i][1]).then((response) => {
+              sendAudioHandler(response, ctxQueue[i][0]);
             });
           }
         } else {
@@ -74,8 +74,8 @@ const sendCallHandler = async (ctx, input, type) => {
       reqQueueAud.length = 0;
       ctxQueueAud.length = 0;
       for (let i = 0; i < reqQueue.length; i++) {
-        generateTextToSpeech(reqQueue[i]).then((response) => {
-          sendAudioHandler(response, ctxQueue[i]);
+        generateTextToSpeech(reqQueue[i], ctxQueue[i][1]).then((response) => {
+          sendAudioHandler(response, ctxQueue[i][0]);
         });
       }
     }
@@ -138,7 +138,9 @@ const sendImageHandler = (photo, caption, ctx) => {
         ctx.answerCbQuery().catch((err) => {});
       }
     }
-  } catch (err) {}
+  } catch (err) {
+    ctx.answerCbQuery().catch((err) => {});
+  }
 };
 
 // Send out text responses
@@ -177,22 +179,24 @@ const sendTextHandler = (ctx, response) => {
     }
   } catch (err) {
     ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-    console.log(err);
+    ctx.answerCbQuery().catch((err) => {});
   }
 };
 
 const sendAudioHandler = (audio, ctx) => {
   try {
-    const messageId = ctx.message.message_id;
-    const name = ctx.message.from.first_name;
+    const messageId = ctx.update.callback_query.message.reply_to_message.message_id;
+    const name = ctx.update.callback_query.message.reply_to_message.from.first_name;
     ctx
       .replyWithAudio({ source: `./audio/${audio}` }, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId, title: name, caption: footerAd })
       .then(() => {
         fs.unlink(`./audio/${audio}`, () => {});
       })
       .catch((err) => console.log(err));
+    ctx.answerCbQuery().catch((err) => {});
   } catch (err) {
     console.log(err);
+    ctx.answerCbQuery().catch((err) => {});
   }
 };
 
