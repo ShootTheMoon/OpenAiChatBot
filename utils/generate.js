@@ -7,7 +7,6 @@ require("dotenv").config();
 const { v4: uuidv4 } = require("uuid");
 
 const { OPENAI_KEY } = process.env;
-console.log(OPENAI_KEY);
 const configuration = new Configuration({
   apiKey: OPENAI_KEY,
 });
@@ -18,6 +17,7 @@ const generateText = async (input) => {
   try {
     const filter = false;
     if (filter === false) {
+      console.log(input);
       const response = await backOff(async () => {
         return await openai.createCompletion({
           model: "text-davinci-003",
@@ -34,6 +34,7 @@ const generateText = async (input) => {
       return ["_Given text violates OpenAI's Content Policy_"];
     }
   } catch (err) {
+    console.log(err);
     return [false];
   }
 };
@@ -131,7 +132,6 @@ const generateTextToSpeech = async (text, voice) => {
 
 const moderationFilter = async (text) => {
   try {
-    console.log(text);
     const response = await backOff(async () => {
       return await openai.createModeration({
         input: text,

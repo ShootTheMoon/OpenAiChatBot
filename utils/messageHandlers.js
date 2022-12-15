@@ -21,7 +21,7 @@ const sendCallHandler = async (ctx, input, type) => {
     reqQueueTxt.push(input);
     ctxQueueTxt.push(ctx);
     typeQueueTxt.push(type);
-    if (reqQueueTxt.length >= 5) {
+    if (reqQueueTxt.length >= 10) {
       const reqQueue = [...reqQueueTxt];
       const ctxQueue = [...ctxQueueTxt];
       const typeQueue = [...typeQueueTxt];
@@ -100,9 +100,7 @@ const sendImageHandler = (photo, caption, ctx) => {
             ],
           },
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch(() => {});
     } else {
       const callbackType = ctx.update.callback_query.data;
       if (callbackType === "retryImg") {
@@ -121,10 +119,8 @@ const sendImageHandler = (photo, caption, ctx) => {
               ],
             },
           })
-          .catch((err) => {
-            console.log(err);
-          });
-        ctx.answerCbQuery().catch((err) => {});
+          .catch(() => {});
+        ctx.answerCbQuery().catch(() => {});
       } else {
         ctx
           .replyWithPhoto(photo, {
@@ -132,14 +128,12 @@ const sendImageHandler = (photo, caption, ctx) => {
             caption: `${caption}\n\n${footerAd}`,
             reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
           })
-          .catch((err) => {
-            console.log(err);
-          });
-        ctx.answerCbQuery().catch((err) => {});
+          .catch(() => {});
+        ctx.answerCbQuery().catch(() => {});
       }
     }
   } catch (err) {
-    ctx.answerCbQuery().catch((err) => {});
+    ctx.answerCbQuery().catch(() => {});
   }
 };
 
@@ -163,13 +157,13 @@ const sendTextHandler = (ctx, response) => {
               disable_web_page_preview: true,
               reply_to_message_id: messageId,
             })
-            .catch((err) =>
+            .catch(() =>
               ctx.reply(`${response.slice(start, end)}`, {
                 disable_web_page_preview: true,
                 reply_to_message_id: messageId,
               })
             )
-            .catch((err) => {
+            .catch(() => {
               ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
             });
           start = start + MAX_SIZE;
@@ -179,7 +173,7 @@ const sendTextHandler = (ctx, response) => {
     }
   } catch (err) {
     ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-    ctx.answerCbQuery().catch((err) => {});
+    ctx.answerCbQuery().catch(() => {});
   }
 };
 
