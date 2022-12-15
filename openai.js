@@ -195,7 +195,6 @@ bot.command((ctx) => {
 
 bot.action("maleVoice", (ctx) => {
   try {
-    const chat = ctx.update.callback_query.message.chat;
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
     const creator = ctx.update.callback_query.message.reply_to_message.from.id;
@@ -206,11 +205,11 @@ bot.action("maleVoice", (ctx) => {
       if (input.split(" ")[0].toLowerCase() === "/speak") {
         input = input.slice(7);
         sendCallHandler([ctx, "male"], input, "audio");
-        ctx.deleteMessage(messageId);
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else if (input.split(" ")[0].toLowerCase() === "/asks") {
         input = input.slice(6);
         sendCallHandler([ctx, "male"], input, "aiaudio");
-        ctx.deleteMessage(messageId);
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
     }
   } catch (err) {
@@ -230,11 +229,11 @@ bot.action("femaleVoice", (ctx) => {
       if (input.split(" ")[0].toLowerCase() === "/speak") {
         input = input.slice(7);
         sendCallHandler([ctx, "female"], input, "audio");
-        ctx.deleteMessage(messageId);
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else if (input.split(" ")[0].toLowerCase() === "/asks") {
         input = input.slice(6);
         sendCallHandler([ctx, "female"], input, "aiaudio");
-        ctx.deleteMessage(messageId);
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
     }
   } catch (err) {
