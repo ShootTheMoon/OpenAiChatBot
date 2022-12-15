@@ -101,12 +101,51 @@ bot.command((ctx) => {
       if (!input) {
         ctx.reply(`*Use /asks followed by a question or statement to generate an audio response*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
-        if (profanityFilter(input) === true) {
-          ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          return;
+        // Check time restriction
+        const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+        logChat(ctx, input);
+        if (chatType === "group") {
+          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else if (chatType === "private") {
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else {
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
+          ctx
+            .reply("_Choose voice options below_", {
+              parse_mode: "Markdown",
+              disable_web_page_preview: true,
+              reply_to_message_id: messageId,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: "Male", callback_data: "maleVoice" },
+                    { text: "Female", callback_data: "femaleVoice" },
+                  ],
+                ],
+              },
+            })
+            .catch((err) => console.log(err));
         }
-        ctx
-          .reply("_Choose voice options below_", {
+      }
+    } else if (command.split(" ")[0].toLowerCase() === "/speak") {
+      if (chatBlacklistHandler(chatId) != false) {
+        return;
+      }
+      const input = command.slice(7);
+      if (!input) {
+        ctx.reply(`*Use /speak followed text to convert into audio*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      } else {
+        const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+        logChat(ctx, input);
+        if (chatType === "group") {
+          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else if (chatType === "private") {
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else {
+          ctx.reply("_Choose voice options below_", {
             parse_mode: "Markdown",
             disable_web_page_preview: true,
             reply_to_message_id: messageId,
@@ -118,30 +157,8 @@ bot.command((ctx) => {
                 ],
               ],
             },
-          })
-          .catch((err) => console.log(err));
-      }
-    } else if (command.split(" ")[0].toLowerCase() === "/speak") {
-      if (chatBlacklistHandler(chatId) != false) {
-        return;
-      }
-      const input = command.slice(7);
-      if (!input) {
-        ctx.reply(`*Use /speak followed text to convert into audio*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-      } else {
-        ctx.reply("_Choose voice options below_", {
-          parse_mode: "Markdown",
-          disable_web_page_preview: true,
-          reply_to_message_id: messageId,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: "Male", callback_data: "maleVoice" },
-                { text: "Female", callback_data: "femaleVoice" },
-              ],
-            ],
-          },
-        });
+          });
+        }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
       const stats = getMetrics(chatId);
@@ -185,24 +202,15 @@ bot.action("maleVoice", (ctx) => {
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery().catch((err) => {});
     } else if (from === creator) {
-      const [chatType, timeLeft] = chatHandler(chat);
-      if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else {
-        let input = ctx.update.callback_query.message.reply_to_message.text;
-        if (input.split(" ")[0].toLowerCase() === "/speak") {
-          input = input.slice(7);
-          sendCallHandler([ctx, "male"], input, "audio");
-          ctx.deleteMessage(messageId);
-        } else if (input.split(" ")[0].toLowerCase() === "/asks") {
-          input = input.slice(6);
-          sendCallHandler([ctx, "male"], input, "aiaudio");
-          ctx.deleteMessage(messageId);
-        }
+      let input = ctx.update.callback_query.message.reply_to_message.text;
+      if (input.split(" ")[0].toLowerCase() === "/speak") {
+        input = input.slice(7);
+        sendCallHandler([ctx, "male"], input, "audio");
+        ctx.deleteMessage(messageId);
+      } else if (input.split(" ")[0].toLowerCase() === "/asks") {
+        input = input.slice(6);
+        sendCallHandler([ctx, "male"], input, "aiaudio");
+        ctx.deleteMessage(messageId);
       }
     }
   } catch (err) {
@@ -218,24 +226,15 @@ bot.action("femaleVoice", (ctx) => {
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery().catch((err) => {});
     } else if (from === creator) {
-      const [chatType, timeLeft] = chatHandler(chat);
-      if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else {
-        let input = ctx.update.callback_query.message.reply_to_message.text;
-        if (input.split(" ")[0].toLowerCase() === "/speak") {
-          input = input.slice(7);
-          sendCallHandler([ctx, "female"], input, "audio");
-          ctx.deleteMessage(messageId);
-        } else if (input.split(" ")[0].toLowerCase() === "/asks") {
-          input = input.slice(6);
-          sendCallHandler([ctx, "female"], input, "aiaudio");
-          ctx.deleteMessage(messageId);
-        }
+      let input = ctx.update.callback_query.message.reply_to_message.text;
+      if (input.split(" ")[0].toLowerCase() === "/speak") {
+        input = input.slice(7);
+        sendCallHandler([ctx, "female"], input, "audio");
+        ctx.deleteMessage(messageId);
+      } else if (input.split(" ")[0].toLowerCase() === "/asks") {
+        input = input.slice(6);
+        sendCallHandler([ctx, "female"], input, "aiaudio");
+        ctx.deleteMessage(messageId);
       }
     }
   } catch (err) {
