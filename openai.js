@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://ced5-45-85-145-175.ngrok.io";
+  serverUrl = "https://4322-45-85-145-177.ngrok.io";
 }
 
 let footerAd = getFooterAd();

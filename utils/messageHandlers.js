@@ -22,7 +22,7 @@ const sendCallHandler = async (ctx, input, type) => {
     reqQueueTxt.push(input);
     ctxQueueTxt.push(ctx);
     typeQueueTxt.push(type);
-    if (reqQueueTxt.length >= 5) {
+    if (reqQueueTxt.length >= 7) {
       const reqQueue = [...reqQueueTxt];
       const ctxQueue = [...ctxQueueTxt];
       const typeQueue = [...typeQueueTxt];
@@ -31,12 +31,12 @@ const sendCallHandler = async (ctx, input, type) => {
       typeQueueTxt.length = 0;
       const flags = await moderationFilter(reqQueue);
       const resArray = await generateText(reqQueue);
-      for (let i = 0; i < resArray[0].length; i++) {
+      for (let i = 0; i < resArray.length; i++) {
         if (!flags[i].flagged) {
           if (typeQueue[i] === "text") {
-            sendTextHandler(ctxQueue[i], resArray[0][i].text);
+            sendTextHandler(ctxQueue[i], resArray[i].text);
           } else if (typeQueue[i] === "aiaudio") {
-            generateTextToSpeech(resArray[0][i].text, ctxQueue[i][1]).then((response) => {
+            generateTextToSpeech(resArray[i].text, ctxQueue[i][1]).then((response) => {
               sendAudioHandler(response, ctxQueue[i][0]);
             });
           }
@@ -57,7 +57,7 @@ const sendCallHandler = async (ctx, input, type) => {
       for (let i = 0; i < reqQueue.length; i++) {
         generateImageNew(reqQueue[i]).then((response) => {
           if (response) {
-            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
+            sendImageHandler(response, reqQueue[i], ctxQueue[i]);
           } else {
             sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
           }

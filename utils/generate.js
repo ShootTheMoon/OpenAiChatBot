@@ -28,10 +28,10 @@ const generateText = async (input) => {
         presence_penalty: 0.5,
       });
     });
-    return [response.data.choices];
+    return response.data.choices;
   } catch (err) {
     console.log(err);
-    return [false];
+    return false;
   }
 };
 
@@ -60,7 +60,7 @@ const generateImageNew = async (input) => {
           try {
             const res = await axios.post(`${response.data.fetch_result}`, { key: "zpON207pthXwqXvGsHfi6flGq1br6I0tfD1Wd8QHfvLAt0jRJFzVglz7yDyk" });
             if (res.data.status === "success") {
-              return [res.data.images[0]];
+              return res.data.images[0];
             }
             retry();
           } catch (err) {
@@ -70,13 +70,13 @@ const generateImageNew = async (input) => {
       };
       retry();
     } else if (response.data.status === "error") {
-      return [false];
+      return false;
     } else {
-      return [`https://d1okzptojspljx.cloudfront.net/generations/${response.data.images[0]}`];
+      return `https://d1okzptojspljx.cloudfront.net/generations/${response.data.images[0]}`;
     }
   } catch (err) {
     console.log(err);
-    return [false];
+    return false;
   }
 };
 
@@ -89,10 +89,10 @@ const generateImage = async (input) => {
         size: "512x512",
       });
     });
-    return [response.data.data[0].url];
+    return response.data.data[0].url;
   } catch (err) {
     console.log(err);
-    return [false];
+    return false;
   }
 };
 
