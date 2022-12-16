@@ -49,30 +49,24 @@ const sendCallHandler = async (ctx, input, type) => {
   } else if (type === "image") {
     reqQueueImg.push(input);
     ctxQueueImg.push(ctx);
-    if (reqQueueImg.length >= 3) {
+    if (reqQueueImg.length >= 1) {
       const reqQueue = [...reqQueueImg];
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
-      const flags = await moderationFilter(reqQueue);
       for (let i = 0; i < reqQueue.length; i++) {
-        if (!flags[i].flagged) {
-          generateImage(reqQueue[i]).then((response) => {
-            if (response) {
-              sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
-            }
-          });
-          generateImageNew(reqQueue[i]).then((response) => {
-            if (response) {
-              sendTextHandlerMoon(ctxQueue[i], "Image generated");
-            } else {
-              sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
-            }
-          });
-        } else {
-          addToProfanityList(reqQueue[i]);
-          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
-        }
+        generateImage(reqQueue[i]).then((response) => {
+          if (response) {
+            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
+          }
+        });
+        generateImageNew(reqQueue[i]).then((response) => {
+          if (response) {
+            sendTextHandlerMoon(ctxQueue[i], "Image generated");
+          } else {
+            sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
+          }
+        });
       }
     }
   } else if (type === "audio") {

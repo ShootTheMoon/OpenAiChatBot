@@ -38,29 +38,29 @@ const generateText = async (input) => {
 const generateImageNew = async (input) => {
   try {
     const response = await backOff(async () => {
-      const response = await axios.post("https://stablediffusionapi.com/api/v3/text2img", {
-        key: "zpON207pthXwqXvGsHfi6flGq1br6I0tfD1Wd8QHfvLAt0jRJFzVglz7yDyk",
+      const response = await axios.post("https://234hgv23b3b3bv2.stablediffusionapi.com/text2img", {
+        key: "rdrv398457321!@#___",
         prompt: input,
         negative_prompt: "",
         width: "512",
         height: "512",
         samples: 1,
-        num_inference_steps: "30",
+        num_inference_steps: 20,
         seed: null,
         guidance_scale: 7.5,
         webhook: null,
         track_id: null,
+        model_id: "analog-diffusion",
       });
       return response;
     });
-    if (response.data.status === "processing") {
+    if (response.data.status === "queued") {
       const retry = () => {
         setTimeout(async () => {
           try {
             const res = await axios.post(`${response.data.fetch_result}`, { key: "zpON207pthXwqXvGsHfi6flGq1br6I0tfD1Wd8QHfvLAt0jRJFzVglz7yDyk" });
             if (res.data.status === "success") {
-              console.log(res.data.output[0]);
-              return [res.data.output[0]];
+              return [res.data.images[0]];
             }
             retry();
           } catch (err) {
@@ -72,7 +72,7 @@ const generateImageNew = async (input) => {
     } else if (response.data.status === "error") {
       return [false];
     } else {
-      return [response.data.output[0]];
+      return [`https://d1okzptojspljx.cloudfront.net/generations/${response.data.images[0]}`];
     }
   } catch (err) {
     console.log(err);
