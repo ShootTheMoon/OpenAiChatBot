@@ -74,6 +74,7 @@ const generateImage = async (input) => {
   try {
     const filter = false;
     if (filter === false) {
+      console.log(input);
       const response = await backOff(async () => {
         return await openai.createImage({
           prompt: input,

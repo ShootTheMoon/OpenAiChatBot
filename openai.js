@@ -30,7 +30,7 @@ bot.start((ctx) => {
   try {
     ctx
       .reply(
-        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to generate a response.\nUse /aski followed by a depiction to generate an image.\nUse /asks followed by a question or statement to generate an audio response.\nUse /speak followed text to convert into audio.\nUse /askstats to get current bot stats._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
+        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nUse /aski followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
         { parse_mode: "Markdown" }
       )
       .catch((err) => console.log(err));
@@ -52,7 +52,7 @@ bot.command((ctx) => {
       const input = command.slice(5);
       // Check if command is empty
       if (!input) {
-        ctx.reply(`*Use /ask followed by a question or statement to generate a response*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /ask followed by a question or statement to receive an AI-generated response via text*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
@@ -76,7 +76,7 @@ bot.command((ctx) => {
       const input = command.slice(6);
       // Check if command is empty
       if (!input) {
-        ctx.reply(`*Use /aski followed by a depiction to generate an image*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /aski followed by a depiction to receive an AI-generated image.\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
@@ -99,7 +99,7 @@ bot.command((ctx) => {
       }
       const input = command.slice(6);
       if (!input) {
-        ctx.reply(`*Use /asks followed by a question or statement to generate an audio response*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /asks followed by a question or statement to receive an AI-generated response via speech*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
@@ -136,7 +136,7 @@ bot.command((ctx) => {
       }
       const input = command.slice(7);
       if (!input) {
-        ctx.reply(`*Use /speak followed text to convert into audio*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /speak followed text to convert text into speech*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
         logChat(ctx, input);
