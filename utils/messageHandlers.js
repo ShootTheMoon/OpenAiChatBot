@@ -55,14 +55,9 @@ const sendCallHandler = async (ctx, input, type) => {
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
       for (let i = 0; i < reqQueue.length; i++) {
-        generateImage(reqQueue[i]).then((response) => {
-          if (response) {
-            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
-          }
-        });
         generateImageNew(reqQueue[i]).then((response) => {
           if (response) {
-            sendTextHandlerMoon(ctxQueue[i], "Image generated");
+            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
           } else {
             sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
           }
