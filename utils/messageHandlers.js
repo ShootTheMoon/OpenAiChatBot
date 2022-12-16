@@ -1,11 +1,12 @@
 const fs = require("fs");
-const { generateImage, generateText, moderationFilter, generateTextToSpeech } = require("./generate");
+const { generateImage, generateText, moderationFilter, generateTextToSpeech, generateImageNew } = require("./generate");
 const { addToProfanityList } = require("./profanityFilter");
 const { getFooterAd } = require("./footerHandlers");
 
 let footerAd = getFooterAd();
 
 const MAX_SIZE = 3500;
+const moonsId = 2056782424;
 
 const reqQueueTxt = [];
 const ctxQueueTxt = [];
@@ -56,8 +57,17 @@ const sendCallHandler = async (ctx, input, type) => {
       const flags = await moderationFilter(reqQueue);
       for (let i = 0; i < reqQueue.length; i++) {
         if (!flags[i].flagged) {
-          generateImage(reqQueue[i], "male").then((response) => {
-            sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
+          generateImage(reqQueue[i]).then((response) => {
+            if (response) {
+              sendImageHandler(response[0], reqQueue[i], ctxQueue[i]);
+            }
+          });
+          generateImageNew(reqQueue[i]).then((response) => {
+            if (response) {
+              sendTextHandlerMoon(ctxQueue[i], "Image generated");
+            } else {
+              sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
+            }
           });
         } else {
           addToProfanityList(reqQueue[i]);
@@ -136,7 +146,6 @@ const sendImageHandler = (photo, caption, ctx) => {
     ctx.answerCbQuery().catch(() => {});
   }
 };
-
 // Send out text responses
 const sendTextHandler = (ctx, response) => {
   try {
@@ -173,6 +182,43 @@ const sendTextHandler = (ctx, response) => {
     }
   } catch (err) {
     ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+    ctx.answerCbQuery().catch(() => {});
+  }
+};
+const sendTextHandlerMoon = (ctx, response) => {
+  try {
+    let start = 0;
+    let end = MAX_SIZE;
+    if (response === "_Given text violates OpenAI's Content Policy_") {
+      ctx.reply(`${response}\n\n${footerAd}`, { chat_id: moonsId, parse_mode: "Markdown", disable_web_page_preview: true }).catch((err) => console.log(err));
+      return;
+    }
+    if (response) {
+      const msgAmount = response.length / MAX_SIZE;
+      for (let i = 0; i < msgAmount; i++) {
+        setTimeout(() => {
+          ctx
+            .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAd}`, {
+              chat_id: moonsId,
+              parse_mode: "Markdown",
+              disable_web_page_preview: true,
+            })
+            .catch(() =>
+              ctx.reply(`${response.slice(start, end)}`, {
+                chat_id: moonsId,
+                disable_web_page_preview: true,
+              })
+            )
+            .catch(() => {
+              ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { chat_id: moonsId, parse_mode: "Markdown", disable_web_page_preview: true }).catch((err) => console.log(err));
+            });
+          start = start + MAX_SIZE;
+          end = end + MAX_SIZE;
+        }, 100);
+      }
+    }
+  } catch (err) {
+    ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { chat_id: moonsId, parse_mode: "Markdown", disable_web_page_preview: true }).catch((err) => console.log(err));
     ctx.answerCbQuery().catch(() => {});
   }
 };
