@@ -30,6 +30,7 @@ const sendCallHandler = async (ctx, input, type) => {
       ctxQueueTxt.length = 0;
       typeQueueTxt.length = 0;
       const flags = await moderationFilter(reqQueue);
+      console.log(flags);
       const resArray = await generateText(reqQueue);
       for (let i = 0; i < resArray.length; i++) {
         if (!flags[i].flagged) {
@@ -54,14 +55,20 @@ const sendCallHandler = async (ctx, input, type) => {
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
+      const flags = await moderationFilter(reqQueue);
       for (let i = 0; i < reqQueue.length; i++) {
-        generateImageNew(reqQueue[i]).then((response) => {
-          if (response) {
-            sendImageHandler(response, reqQueue[i], ctxQueue[i]);
-          } else {
-            sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
-          }
-        });
+        if (!flags[i].flagged) {
+          generateImageNew(reqQueue[i]).then((response) => {
+            if (response) {
+              sendImageHandler(response, reqQueue[i], ctxQueue[i]);
+            } else {
+              sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
+            }
+          });
+        } else {
+          addToProfanityList(reqQueue[i]);
+          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+        }
       }
     }
   } else if (type === "audio") {
