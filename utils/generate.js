@@ -35,7 +35,7 @@ const generateText = async (input) => {
   }
 };
 
-const generateImageNew = async (input) => {
+const generateImage = async (input, model) => {
   try {
     const response = await backOff(async () => {
       const response = await axios.post("https://234hgv23b3b3bv2.stablediffusionapi.com/text2img", {
@@ -50,7 +50,7 @@ const generateImageNew = async (input) => {
         guidance_scale: 7.5,
         webhook: null,
         track_id: null,
-        model_id: "analog-diffusion",
+        model_id: model,
       });
       return response;
     });
@@ -72,25 +72,8 @@ const generateImageNew = async (input) => {
     } else if (response.data.status === "error") {
       return false;
     } else {
-      console.log(response.data.images[0]);
       return `http://moon-labs-stable-diffusion.s3.amazonaws.com/generations/${response.data.images[0]}`;
     }
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-};
-
-const generateImage = async (input) => {
-  try {
-    const response = await backOff(async () => {
-      return await openai.createImage({
-        prompt: input,
-        n: 1,
-        size: "512x512",
-      });
-    });
-    return response.data.data[0].url;
   } catch (err) {
     console.log(err);
     return false;
@@ -149,4 +132,4 @@ const moderationFilter = async (text) => {
   }
 };
 
-module.exports = { generateText, generateImage, moderationFilter, generateTextToSpeech, generateImageNew };
+module.exports = { generateText, generateImage, moderationFilter, generateTextToSpeech };

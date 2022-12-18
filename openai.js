@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://7201-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
+  serverUrl = "https://e397-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -90,7 +90,21 @@ bot.command((ctx) => {
             ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
             return;
           }
-          sendCallHandler(ctx, input, "image");
+          ctx
+            .reply("_Choose an image style from below_", {
+              parse_mode: "Markdown",
+              disable_web_page_preview: true,
+              reply_to_message_id: messageId,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: "Standard", callback_data: "standardStyle" },
+                    { text: "Anime", callback_data: "animeStyle" },
+                  ],
+                ],
+              },
+            })
+            .catch((err) => console.log(err));
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/asks") {
@@ -220,7 +234,6 @@ bot.action("maleVoice", (ctx) => {
 });
 bot.action("femaleVoice", (ctx) => {
   try {
-    const chat = ctx.update.callback_query.message.chat;
     const from = ctx.update.callback_query.from.id;
     const messageId = ctx.update.callback_query.message.message_id;
     const creator = ctx.update.callback_query.message.reply_to_message.from.id;
@@ -244,9 +257,10 @@ bot.action("femaleVoice", (ctx) => {
   }
 });
 
-bot.action("enhanceImg", (ctx) => {
+bot.action("animeStyle", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
+    const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
     const creator = ctx.update.callback_query.message.reply_to_message.from.id;
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
@@ -262,8 +276,9 @@ bot.action("enhanceImg", (ctx) => {
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(6);
-        input += ", ultra realistic, 4k, intricate details,abstract, full hd render + 3d octane render +4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details + octane render + 8k";
+        input = "anything-v3.0 " + input;
         sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
     } else {
       ctx.answerCbQuery().catch((err) => {});
@@ -273,9 +288,10 @@ bot.action("enhanceImg", (ctx) => {
   }
 });
 
-bot.action("pixelateImg", (ctx) => {
+bot.action("standardStyle", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
+    const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
     const creator = ctx.update.callback_query.message.reply_to_message.from.id;
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
@@ -291,36 +307,9 @@ bot.action("pixelateImg", (ctx) => {
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(6);
-        input += ", in a vaporwave style, as pixel art, in a photorealistic style";
+        input = "analog-diffusion " + input;
         sendCallHandler(ctx, input, "image");
-      }
-    } else {
-      ctx.answerCbQuery().catch((err) => {});
-    }
-  } catch (err) {
-    console.log(err);
-  }
-});
-
-bot.action("retryImg", (ctx) => {
-  try {
-    const chat = ctx.update.callback_query.message.chat;
-    const from = ctx.update.callback_query.from.id;
-    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
-    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
-      ctx.answerCbQuery().catch((err) => {});
-    } else if (from === creator) {
-      const [chatType, timeLeft] = chatHandler(chat);
-      if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else {
-        let input = ctx.update.callback_query.message.reply_to_message.text;
-        input = input.slice(6);
-        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
     } else {
       ctx.answerCbQuery().catch((err) => {});
