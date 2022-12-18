@@ -1,7 +1,6 @@
 const fs = require("fs");
 
 const profanityFilter = (msg) => {
-  console.log("ping");
   let data = fs.readFileSync("./data/profanityList.json", "utf-8");
   data = JSON.parse(data);
   for (let i = 0; i < data.length; i++) {

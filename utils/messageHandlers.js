@@ -126,7 +126,9 @@ const sendImageHandler = (photo, caption, ctx) => {
             },
           })
           .catch(() => {});
-        ctx.answerCbQuery().catch(() => {});
+        ctx.answerCbQuery().catch((err) => {
+          console.log(err);
+        });
       } else {
         ctx
           .replyWithPhoto(photo, {

@@ -72,7 +72,8 @@ const generateImageNew = async (input) => {
     } else if (response.data.status === "error") {
       return false;
     } else {
-      return `https://d1okzptojspljx.cloudfront.net/generations/${response.data.images[0]}`;
+      console.log(response.data.images[0]);
+      return `http://moon-labs-stable-diffusion.s3.amazonaws.com/generations/${response.data.images[0]}`;
     }
   } catch (err) {
     console.log(err);
