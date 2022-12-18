@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://e397-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
+  serverUrl = "https://45ea-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -62,10 +62,10 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(input) === true) {
-            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            return;
-          }
+          // if (profanityFilter(input) === true) {
+          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          //   return;
+          // }
           sendCallHandler(ctx, input, "text");
         }
       }
@@ -86,12 +86,12 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(input) === true) {
-            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            return;
-          }
+          // if (profanityFilter(input) === true) {
+          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          //   return;
+          // }
           ctx
-            .reply("_Choose an image style from below_", {
+            .reply('*Choose an image style from below*\n\n_To add a negative prompt, at the END of your depiction add ":negative" followed what you wanted to exclude_', {
               parse_mode: "Markdown",
               disable_web_page_preview: true,
               reply_to_message_id: messageId,
@@ -123,10 +123,10 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          if (profanityFilter(input) === true) {
-            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            return;
-          }
+          // if (profanityFilter(input) === true) {
+          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          //   return;
+          // }
           ctx
             .reply("_Choose voice options below_", {
               parse_mode: "Markdown",
@@ -173,7 +173,7 @@ bot.command((ctx) => {
                 ],
               },
             })
-            .catch((err) => {});
+            .catch(() => {});
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
@@ -209,6 +209,7 @@ bot.command((ctx) => {
 
 // >- Callbacks -< \\
 
+// American male voice
 bot.action("maleVoice", (ctx) => {
   try {
     const messageId = ctx.update.callback_query.message.message_id;
@@ -232,6 +233,8 @@ bot.action("maleVoice", (ctx) => {
     console.log(err);
   }
 });
+
+// American female voice
 bot.action("femaleVoice", (ctx) => {
   try {
     const from = ctx.update.callback_query.from.id;
@@ -257,6 +260,7 @@ bot.action("femaleVoice", (ctx) => {
   }
 });
 
+// Animated diffusion model
 bot.action("animeStyle", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
@@ -279,6 +283,7 @@ bot.action("animeStyle", (ctx) => {
   }
 });
 
+// Normal diffusion model
 bot.action("standardStyle", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
@@ -304,21 +309,8 @@ bot.action("standardStyle", (ctx) => {
 // Start webhook via launch method (preferred)
 bot.launch({
   webhook: {
-    // Public domain for webhook; e.g.: example.com
     domain: `${serverUrl}`,
-
-    // Port to listen on; e.g.: 8080
-    port: PORT,
-
-    // path: "/artifactory",
-
-    // // Optional path to listen for.
-    // // `bot.secretPathComponent()` will be used by default
     hookPath: `/app4/${TOKEN}`,
-
-    // // Optional secret to be sent back in a header for security.
-    // // e.g.: `crypto.randomBytes(64).toString("hex")`
-    // secretToken: randomAlphaNumericString,
   },
 });
 
