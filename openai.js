@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://e397-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
+  serverUrl = "https://8fe1-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -310,6 +310,7 @@ bot.action("standardStyle", (ctx) => {
 bot.launch({
   webhook: {
     domain: `${serverUrl}`,
+    port: PORT,
     hookPath: `/app4/${TOKEN}`,
   },
 });
