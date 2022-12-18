@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://45ea-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
+  serverUrl = "https://e397-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -62,10 +62,10 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // if (profanityFilter(input) === true) {
-          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          //   return;
-          // }
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
           sendCallHandler(ctx, input, "text");
         }
       }
@@ -86,10 +86,10 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // if (profanityFilter(input) === true) {
-          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          //   return;
-          // }
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
           ctx
             .reply('*Choose an image style from below*\n\n_To add a negative prompt, at the END of your depiction add ":negative" followed what you wanted to exclude_', {
               parse_mode: "Markdown",
@@ -123,10 +123,10 @@ bot.command((ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // if (profanityFilter(input) === true) {
-          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          //   return;
-          // }
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
           ctx
             .reply("_Choose voice options below_", {
               parse_mode: "Markdown",
@@ -173,7 +173,7 @@ bot.command((ctx) => {
                 ],
               },
             })
-            .catch(() => {});
+            .catch((err) => {});
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/askstats") {
