@@ -266,20 +266,11 @@ bot.action("animeStyle", (ctx) => {
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery().catch((err) => {});
     } else if (from === creator) {
-      const [chatType, timeLeft] = chatHandler(chat);
-      if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else {
-        let input = ctx.update.callback_query.message.reply_to_message.text;
-        input = input.slice(6);
-        input = "anything-v3.0 " + input;
-        sendCallHandler(ctx, input, "image");
-        ctx.deleteMessage(messageId).catch((err) => console.log(err));
-      }
+      let input = ctx.update.callback_query.message.reply_to_message.text;
+      input = input.slice(6);
+      input = "anything-v3.0 " + input;
+      sendCallHandler(ctx, input, "image");
+      ctx.deleteMessage(messageId).catch((err) => console.log(err));
     } else {
       ctx.answerCbQuery().catch((err) => {});
     }
@@ -297,20 +288,11 @@ bot.action("standardStyle", (ctx) => {
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery().catch((err) => {});
     } else if (from === creator) {
-      const [chatType, timeLeft] = chatHandler(chat);
-      if (chatType === "group") {
-        ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else if (chatType === "private") {
-        ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id }).catch((err) => console.log(err));
-        ctx.answerCbQuery().catch((err) => {});
-      } else {
-        let input = ctx.update.callback_query.message.reply_to_message.text;
-        input = input.slice(6);
-        input = "analog-diffusion " + input;
-        sendCallHandler(ctx, input, "image");
-        ctx.deleteMessage(messageId).catch((err) => console.log(err));
-      }
+      let input = ctx.update.callback_query.message.reply_to_message.text;
+      input = input.slice(6);
+      input = "analog-diffusion " + input;
+      sendCallHandler(ctx, input, "image");
+      ctx.deleteMessage(messageId).catch((err) => console.log(err));
     } else {
       ctx.answerCbQuery().catch((err) => {});
     }

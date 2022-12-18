@@ -55,22 +55,16 @@ const sendCallHandler = async (ctx, input, type) => {
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
-      const flags = await moderationFilter(reqQueue);
       for (let i = 0; i < reqQueue.length; i++) {
-        if (!flags[i].flagged) {
-          const model = reqQueue[i].split(" ")[0];
-          const request = reqQueue[i].slice(model.length + 1);
-          generateImage(request, model).then((response) => {
-            if (response) {
-              sendImageHandler(response, request, ctxQueue[i]);
-            } else {
-              sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
-            }
-          });
-        } else {
-          addToProfanityList(reqQueue[i]);
-          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
-        }
+        const model = reqQueue[i].split(" ")[0];
+        const request = reqQueue[i].slice(model.length + 1);
+        generateImage(request, model).then((response) => {
+          if (response) {
+            sendImageHandler(response, request, ctxQueue[i]);
+          } else {
+            sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
+          }
+        });
       }
     }
   } else if (type === "audio") {
@@ -93,36 +87,23 @@ const sendCallHandler = async (ctx, input, type) => {
 const sendImageHandler = (photo, caption, ctx) => {
   try {
     const callbackType = ctx.update.callback_query.data;
-    if (callbackType === "retryImg") {
-      ctx
-        .replyWithPhoto(photo, {
-          parse_mode: "Markdown",
-          caption: `${caption}\n\n${footerAd}`,
-          reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
-          // reply_markup: {
-          //   inline_keyboard: [
-          //     [
-          //       { text: "Retry", callback_data: "retryImg" },
-          //       { text: "Enhance", callback_data: "enhanceImg" },
-          //       { text: "Pixelate", callback_data: "pixelateImg" },
-          //     ],
-          //   ],
-          // },
-        })
-        .catch(() => {});
-      ctx.answerCbQuery().catch((err) => {
-        console.log(err);
+    ctx
+      .replyWithPhoto(photo, {
+        parse_mode: "Markdown",
+        caption: `${caption}\n\n${footerAd}`,
+        reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
+      })
+      .catch(() => {
+        ctx
+          .replyWithPhoto(photo, {
+            caption: `${caption}`,
+            reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       });
-    } else {
-      ctx
-        .replyWithPhoto(photo, {
-          parse_mode: "Markdown",
-          caption: `${caption}\n\n${footerAd}`,
-          reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
-        })
-        .catch(() => {});
-      ctx.answerCbQuery().catch(() => {});
-    }
+    ctx.answerCbQuery().catch(() => {});
   } catch (err) {
     ctx.answerCbQuery().catch(() => {});
   }

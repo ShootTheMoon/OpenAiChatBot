@@ -37,11 +37,12 @@ const generateText = async (input) => {
 
 const generateImage = async (input, model) => {
   try {
+    const negativePrompt = input.split(":negative ")[1];
     const response = await backOff(async () => {
       const response = await axios.post("https://234hgv23b3b3bv2.stablediffusionapi.com/text2img", {
         key: "rdrv398457321!@#___",
         prompt: input,
-        negative_prompt: "",
+        negative_prompt: negativePrompt,
         width: "512",
         height: "512",
         samples: 1,
@@ -54,6 +55,7 @@ const generateImage = async (input, model) => {
       });
       return response;
     });
+    console.log(response);
     if (response.data.status === "queued") {
       const retry = () => {
         setTimeout(async () => {
