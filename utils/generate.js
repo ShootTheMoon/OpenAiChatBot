@@ -82,6 +82,53 @@ const generateImage = async (input, model) => {
   }
 };
 
+const generateImage2Image = async (input, model, img) => {
+  try {
+    const negativePrompt = input.split(":negative ")[1];
+    const response = await backOff(async () => {
+      const response = await axios.post("https://234hgv23b3b3bv2.stablediffusionapi.com/img2img", {
+        key: "rdrv398457321!@#___",
+        prompt: input,
+        negative_prompt: negativePrompt,
+        init_image: img,
+        height: "512",
+        samples: 1,
+        num_inference_steps: 20,
+        seed: null,
+        guidance_scale: 7.5,
+        webhook: null,
+        track_id: null,
+        model_id: model,
+      });
+      return response;
+    });
+    console.log(response);
+    if (response.data.status === "queued") {
+      const retry = () => {
+        setTimeout(async () => {
+          try {
+            const res = await axios.post(`${response.data.fetch_result}`, { key: "zpON207pthXwqXvGsHfi6flGq1br6I0tfD1Wd8QHfvLAt0jRJFzVglz7yDyk" });
+            if (res.data.status === "success") {
+              return res.data.images[0];
+            }
+            retry();
+          } catch (err) {
+            return [false];
+          }
+        }, 3000);
+      };
+      retry();
+    } else if (response.data.status === "error") {
+      return false;
+    } else {
+      return `http://moon-labs-stable-diffusion.s3.amazonaws.com/generations/${response.data.images[0]}`;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
 const generateTextToSpeech = async (text, voice) => {
   try {
     const response = await backOff(async () => {
@@ -134,4 +181,4 @@ const moderationFilter = async (text) => {
   }
 };
 
-module.exports = { generateText, generateImage, moderationFilter, generateTextToSpeech };
+module.exports = { generateText, generateImage, moderationFilter, generateTextToSpeech, generateImage2Image };

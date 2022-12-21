@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { generateImage, generateText, moderationFilter, generateTextToSpeech } = require("./generate");
+const { generateImage, generateText, moderationFilter, generateTextToSpeech, generateImage2Image } = require("./generate");
 const { addToProfanityList } = require("./profanityFilter");
 const { getFooterAd } = require("./footerHandlers");
 
@@ -58,13 +58,28 @@ const sendCallHandler = async (ctx, input, type) => {
       for (let i = 0; i < reqQueue.length; i++) {
         const model = reqQueue[i].split(" ")[0];
         const request = reqQueue[i].slice(model.length + 1);
-        generateImage(request, model).then((response) => {
-          if (response) {
-            sendImageHandler(response, request, ctxQueue[i]);
-          } else {
-            sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
-          }
-        });
+        if (ctxQueue[i].update.callback_query.message.reply_to_message.caption) {
+          const url = ctxQueue[i].update.callback_query.message.reply_to_message.photo[0].file_id;
+          ctxQueue[i].telegram.getFileLink(url).then((img) => {
+            generateImage2Image(request, model, img.href)
+              .then((response) => {
+                if (response) {
+                  sendImageHandler(response, request, ctxQueue[i]);
+                } else {
+                  sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
+                }
+              })
+              .catch((err) => console.log(err));
+          });
+        } else {
+          generateImage(request, model).then((response) => {
+            if (response) {
+              sendImageHandler(response, request, ctxQueue[i]);
+            } else {
+              sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
+            }
+          });
+        }
       }
     }
   } else if (type === "audio") {

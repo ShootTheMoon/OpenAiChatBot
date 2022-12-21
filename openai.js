@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://216d-2601-5ca-c300-47f0-4061-ce96-a0e-e900.ngrok.io";
+  serverUrl = "https://1daa-45-85-144-35.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -38,14 +38,55 @@ bot.start((ctx) => {
 });
 
 // On bot command
-bot.command((ctx) => {
+bot.command(async (ctx) => {
   try {
     const chatId = ctx.message.chat.id;
     const command = ctx.message.text;
     const messageId = ctx.message.message_id;
     // Check for profanity
     // Check if blacklisted
-    if (command.split(" ")[0].toLowerCase() === "/ask") {
+    if (ctx.update.message.photo) {
+      // const caption = ctx.message.caption;
+      // if (caption.split(" ")[0].toLowerCase() === "/img") {
+      //   if (chatBlacklistHandler(chatId) != false) {
+      //     return;
+      //   }
+      //   const input = caption.slice(5);
+      //   // Check if command is empty
+      //   if (!input) {
+      //     ctx.reply(`*Please add a depiction after /img in order to generate an edited photo.*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      //   } else {
+      //     // Check time restriction
+      //     const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+      //     logChat(ctx, input);
+      //     if (chatType === "group") {
+      //       ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      //     } else if (chatType === "private") {
+      //       ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      //     } else {
+      //       // if (profanityFilter(input) === true) {
+      //       //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      //       //   return;
+      //       // }
+      //       ctx
+      //         .reply('*Choose an image style from below*\n\n_To add a negative prompt, at the END of your depiction add ":negative" followed what you wanted to exclude_', {
+      //           parse_mode: "Markdown",
+      //           disable_web_page_preview: true,
+      //           reply_to_message_id: messageId,
+      //           reply_markup: {
+      //             inline_keyboard: [
+      //               [
+      //                 { text: "Standard", callback_data: "standardStyle" },
+      //                 { text: "Anime", callback_data: "animeStyle" },
+      //               ],
+      //             ],
+      //           },
+      //         })
+      //         .catch((err) => console.log(err));
+      //     }
+      //   }
+      // }
+    } else if (command.split(" ")[0].toLowerCase() === "/ask") {
       if (chatBlacklistHandler(chatId) != false) {
         return;
       }
@@ -73,10 +114,12 @@ bot.command((ctx) => {
       if (chatBlacklistHandler(chatId) != false) {
         return;
       }
-      const input = command.slice(6);
+      const input = command.slice(5);
       // Check if command is empty
       if (!input) {
-        ctx.reply(`*Use /img followed by a depiction to receive an AI-generated image.\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx
+          .reply(`*Use /img followed by a depiction to receive an AI-generated image*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId })
+          .catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
@@ -265,18 +308,25 @@ bot.action("femaleVoice", (ctx) => {
 // Animated diffusion model
 bot.action("animeStyle", (ctx) => {
   try {
-    const chat = ctx.update.callback_query.message.chat;
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
     const creator = ctx.update.callback_query.message.reply_to_message.from.id;
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery().catch((err) => {});
     } else if (from === creator) {
-      let input = ctx.update.callback_query.message.reply_to_message.text;
-      input = input.slice(6);
-      input = "anything-v3.0 " + input;
-      sendCallHandler(ctx, input, "image");
-      ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      if (ctx.update.callback_query.message.reply_to_message.caption) {
+        let input = ctx.update.callback_query.message.reply_to_message.caption;
+        input = input.slice(5);
+        input = "anything-v3.0 " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      } else {
+        let input = ctx.update.callback_query.message.reply_to_message.text;
+        input = input.slice(5);
+        input = "anything-v3.0 " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      }
     } else {
       ctx.answerCbQuery().catch((err) => {});
     }
@@ -295,11 +345,19 @@ bot.action("standardStyle", (ctx) => {
     if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
       ctx.answerCbQuery().catch((err) => {});
     } else if (from === creator) {
-      let input = ctx.update.callback_query.message.reply_to_message.text;
-      input = input.slice(6);
-      input = "analog-diffusion " + input;
-      sendCallHandler(ctx, input, "image");
-      ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      if (ctx.update.callback_query.message.reply_to_message.caption) {
+        let input = ctx.update.callback_query.message.reply_to_message.caption;
+        input = input.slice(5);
+        input = "analog-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      } else {
+        let input = ctx.update.callback_query.message.reply_to_message.text;
+        input = input.slice(5);
+        input = "analog-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      }
     } else {
       ctx.answerCbQuery().catch((err) => {});
     }
