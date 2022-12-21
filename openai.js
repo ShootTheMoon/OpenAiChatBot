@@ -201,7 +201,7 @@ bot.command((ctx) => {
       const message = command.slice(11);
       broadcast(ctx, message);
       ctx.reply(`Broadcasting...`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-    } else if (command.toLowerCase() === "/aski") {
+    } else if (command.split(" ")[0].toLowerCase() === "/aski") {
       ctx.reply(`*/aski is no longer in use, please use /img instead*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     }
   } catch (err) {
