@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://8fe1-2601-5ca-c300-47f0-2859-2d37-6ce8-165a.ngrok.io";
+  serverUrl = "https://216d-2601-5ca-c300-47f0-4061-ce96-a0e-e900.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -30,7 +30,7 @@ bot.start((ctx) => {
   try {
     ctx
       .reply(
-        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nUse /aski followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
+        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nUse /img followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
         { parse_mode: "Markdown" }
       )
       .catch((err) => console.log(err));
@@ -69,14 +69,14 @@ bot.command((ctx) => {
           sendCallHandler(ctx, input, "text");
         }
       }
-    } else if (command.split(" ")[0].toLowerCase() === "/aski") {
+    } else if (command.split(" ")[0].toLowerCase() === "/img") {
       if (chatBlacklistHandler(chatId) != false) {
         return;
       }
       const input = command.slice(6);
       // Check if command is empty
       if (!input) {
-        ctx.reply(`*Use /aski followed by a depiction to receive an AI-generated image.\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        ctx.reply(`*Use /img followed by a depiction to receive an AI-generated image.\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
@@ -201,6 +201,8 @@ bot.command((ctx) => {
       const message = command.slice(11);
       broadcast(ctx, message);
       ctx.reply(`Broadcasting...`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+    } else if (command.toLowerCase() === "/aski") {
+      ctx.reply(`*/aski is no longer in use, please use /img instead*`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     }
   } catch (err) {
     console.log(err);
