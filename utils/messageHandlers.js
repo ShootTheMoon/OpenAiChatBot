@@ -22,7 +22,7 @@ const sendCallHandler = async (ctx, input, type) => {
     reqQueueTxt.push(input);
     ctxQueueTxt.push(ctx);
     typeQueueTxt.push(type);
-    if (reqQueueTxt.length >= 7) {
+    if (reqQueueTxt.length >= 4) {
       const reqQueue = [...reqQueueTxt];
       const ctxQueue = [...ctxQueueTxt];
       const typeQueue = [...typeQueueTxt];
