@@ -31,19 +31,29 @@ const sendCallHandler = async (ctx, input, type) => {
       ctxQueueTxt.length = 0;
       typeQueueTxt.length = 0;
       const flags = await moderationFilter(reqQueue);
-      const resArray = await generateText(reqQueue);
-      for (let i = 0; i < resArray.length; i++) {
+      const rQueue = [];
+      const cQueue = [];
+      const tQueue = [];
+      for (let i = 0; i < reqQueue.length; i++) {
         if (!flags[i].flagged) {
-          if (typeQueue[i] === "text") {
-            sendTextHandler(ctxQueue[i], resArray[i].text);
-          } else if (typeQueue[i] === "aiaudio") {
-            generateTextToSpeech(resArray[i].text, ctxQueue[i][1]).then((response) => {
-              sendAudioHandler(response, ctxQueue[i][0]);
-            });
-          }
+          rQueue.push(reqQueue[i]);
+          cQueue.push(ctxQueue[i]);
+          tQueue.push(typeQueue[i]);
         } else {
           addToProfanityList(reqQueue[i]);
           sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+        }
+      }
+      if (rQueue.length > 0) {
+        const resArray = await generateText(rQueue);
+        for (let i = 0; i < resArray.length; i++) {
+          if (tQueue[i] === "text") {
+            sendTextHandler(cQueue[i], resArray[i].text);
+          } else if (tQueue[i] === "aiaudio") {
+            generateTextToSpeech(resArray[i].text, cQueue[i][1]).then((response) => {
+              sendAudioHandler(response, cQueue[i][0]);
+            });
+          }
         }
       }
     }
@@ -55,6 +65,7 @@ const sendCallHandler = async (ctx, input, type) => {
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
+      const flags = await moderationFilter(reqQueue);
       for (let i = 0; i < reqQueue.length; i++) {
         const model = reqQueue[i].split(" ")[0];
         const request = reqQueue[i].slice(model.length + 1);
@@ -72,13 +83,16 @@ const sendCallHandler = async (ctx, input, type) => {
               .catch((err) => console.log(err));
           });
         } else {
-          generateImage(request, model).then((response) => {
-            if (response) {
-              sendImageHandler(response, request, ctxQueue[i]);
-            } else {
-              sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
-            }
-          });
+          if (!flags[i].flagged) {
+            generateImage(request, model).then((response) => {
+              if (response) {
+                sendImageHandler(response, request, ctxQueue[i]);
+              }
+            });
+          } else {
+            addToProfanityList(reqQueue[i]);
+            sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+          }
         }
       }
     }
@@ -109,9 +123,8 @@ const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
         reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
       })
       .catch((err) => {
-        console.log(err);
         console.log("again", tries);
-        if (tries < 3) {
+        if (tries < 2) {
           setTimeout(async () => {
             console.log(photo);
             sendImageHandler(photo, caption, ctx, ++tries);
@@ -128,40 +141,107 @@ const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
 // Send out text responses
 const sendTextHandler = (ctx, response) => {
   try {
-    const messageId = ctx.message.message_id;
     let start = 0;
     let end = MAX_SIZE;
-    if (response === "_Given text violates OpenAI's Content Policy_") {
-      ctx.reply(`${response}\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-      return;
-    }
-    if (response) {
-      const msgAmount = response.length / MAX_SIZE;
-      for (let i = 0; i < msgAmount; i++) {
-        setTimeout(() => {
-          ctx
-            .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAd}`, {
-              parse_mode: "Markdown",
-              disable_web_page_preview: true,
-              reply_to_message_id: messageId,
-            })
-            .catch(() =>
-              ctx.reply(`${response.slice(start, end)}`, {
+    try {
+      const messageId = ctx.message.message_id;
+      if (response === "_Given text violates OpenAI's Content Policy_") {
+        ctx.reply(`${response}\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        return;
+      }
+      if (response) {
+        const msgAmount = response.length / MAX_SIZE;
+        for (let i = 0; i < msgAmount; i++) {
+          setTimeout(() => {
+            ctx
+              .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAd}`, {
+                parse_mode: "Markdown",
                 disable_web_page_preview: true,
                 reply_to_message_id: messageId,
               })
-            )
-            .catch(() => {
-              ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-            });
-          start = start + MAX_SIZE;
-          end = end + MAX_SIZE;
-        }, 100);
+              .catch(() =>
+                ctx.reply(`${response.slice(start, end)}`, {
+                  disable_web_page_preview: true,
+                  reply_to_message_id: messageId,
+                })
+              )
+              .catch(() => {});
+            start = start + MAX_SIZE;
+            end = end + MAX_SIZE;
+          }, 100);
+        }
+      }
+    } catch {
+      try {
+        messageId = ctx.update.callback_query.message.reply_to_message.message_id;
+        if (response === "_Given text violates OpenAI's Content Policy_") {
+          ctx.reply(`${response}\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          return;
+        }
+        if (response) {
+          const msgAmount = response.length / MAX_SIZE;
+          for (let i = 0; i < msgAmount; i++) {
+            setTimeout(() => {
+              ctx
+                .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAd}`, {
+                  parse_mode: "Markdown",
+                  disable_web_page_preview: true,
+                  reply_to_message_id: messageId,
+                })
+                .catch(() =>
+                  ctx.reply(`${response.slice(start, end)}`, {
+                    disable_web_page_preview: true,
+                    reply_to_message_id: messageId,
+                  })
+                )
+                .catch(() => {});
+              start = start + MAX_SIZE;
+              end = end + MAX_SIZE;
+            }, 100);
+          }
+        }
+      } catch (err) {
+        try {
+          ctx = ctx[0];
+          messageId = ctx.update.callback_query.message.reply_to_message.message_id;
+          if (response === "_Given text violates OpenAI's Content Policy_") {
+            ctx.reply(`${response}\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
+          if (response) {
+            const msgAmount = response.length / MAX_SIZE;
+            for (let i = 0; i < msgAmount; i++) {
+              setTimeout(() => {
+                ctx
+                  .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAd}`, {
+                    parse_mode: "Markdown",
+                    disable_web_page_preview: true,
+                    reply_to_message_id: messageId,
+                  })
+                  .catch(() =>
+                    ctx.reply(`${response.slice(start, end)}`, {
+                      disable_web_page_preview: true,
+                      reply_to_message_id: messageId,
+                    })
+                  )
+                  .catch(() => {});
+                start = start + MAX_SIZE;
+                end = end + MAX_SIZE;
+              }, 100);
+            }
+          }
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
   } catch (err) {
-    ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-    ctx.answerCbQuery().catch(() => {});
+    console.log(err);
+    try {
+      ctx.answerCbQuery().catch((err) => {
+        console.log(err);
+      });
+    } catch (err) {}
   }
 };
 const sendTextHandlerMoon = (ctx, response) => {
@@ -188,16 +268,13 @@ const sendTextHandlerMoon = (ctx, response) => {
                 disable_web_page_preview: true,
               })
             )
-            .catch(() => {
-              ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { chat_id: moonsId, parse_mode: "Markdown", disable_web_page_preview: true }).catch((err) => console.log(err));
-            });
+            .catch(() => {});
           start = start + MAX_SIZE;
           end = end + MAX_SIZE;
         }, 100);
       }
     }
   } catch (err) {
-    ctx.reply(`_Err, Please try again_\n\n${footerAd}`, { chat_id: moonsId, parse_mode: "Markdown", disable_web_page_preview: true }).catch((err) => console.log(err));
     ctx.answerCbQuery().catch(() => {});
   }
 };
