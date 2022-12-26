@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://1daa-45-85-144-35.ngrok.io";
+  serverUrl = "https://ea98-2601-5ca-c300-47f0-9dc7-9540-2671-f67b.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -117,17 +117,15 @@ bot.command(async (ctx) => {
       const input = command.slice(5);
       // Check if command is empty
       if (!input) {
-        ctx
-          .reply(`*Use /img followed by a depiction to receive an AI-generated image*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId })
-          .catch((err) => console.log(err));
+        ctx.reply(`*Use /img followed by a depiction to receive an AI-generated image*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
       } else {
         // Check time restriction
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
         logChat(ctx, input);
         if (chatType === "group") {
-          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else if (chatType === "private") {
-          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 45 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
           // if (profanityFilter(input) === true) {
           //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
@@ -162,9 +160,9 @@ bot.command(async (ctx) => {
         const [chatType, timeLeft] = chatHandler(ctx.message.chat);
         logChat(ctx, input);
         if (chatType === "group") {
-          ctx.reply(`*Request are limited to 1 request per 10 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else if (chatType === "private") {
-          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+          ctx.reply(`*Request are limited to 1 request per 45 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
           // if (profanityFilter(input) === true) {
           //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));

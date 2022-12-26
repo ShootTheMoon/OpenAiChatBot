@@ -1,7 +1,7 @@
 // Lib imports
 const fs = require("fs");
 
-const privateBufferTime = 30;
+const privateBufferTime = 45;
 const groupBufferTime = 15;
 const chatExceptions = [-1001848309914, -1001555247769, -1001555247769, -1001846307911, 2056782424];
 

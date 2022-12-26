@@ -1,4 +1,5 @@
 const fs = require("fs");
+const axios = require("axios");
 const { generateImage, generateText, moderationFilter, generateTextToSpeech, generateImage2Image } = require("./generate");
 const { addToProfanityList } = require("./profanityFilter");
 const { getFooterAd } = require("./footerHandlers");
@@ -30,7 +31,6 @@ const sendCallHandler = async (ctx, input, type) => {
       ctxQueueTxt.length = 0;
       typeQueueTxt.length = 0;
       const flags = await moderationFilter(reqQueue);
-      console.log(flags);
       const resArray = await generateText(reqQueue);
       for (let i = 0; i < resArray.length; i++) {
         if (!flags[i].flagged) {
@@ -99,7 +99,7 @@ const sendCallHandler = async (ctx, input, type) => {
   }
 };
 
-const sendImageHandler = (photo, caption, ctx) => {
+const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
   try {
     const callbackType = ctx.update.callback_query.data;
     ctx
@@ -108,18 +108,20 @@ const sendImageHandler = (photo, caption, ctx) => {
         caption: `${caption}\n\n${footerAd}`,
         reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
       })
-      .catch(() => {
-        ctx
-          .replyWithPhoto(photo, {
-            caption: `${caption}`,
-            reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      .catch((err) => {
+        console.log(err);
+        console.log("again", tries);
+        if (tries < 3) {
+          setTimeout(async () => {
+            console.log(photo);
+            sendImageHandler(photo, caption, ctx, ++tries);
+          }, 15000);
+        }
+        ctx.answerCbQuery().catch(() => {});
       });
     ctx.answerCbQuery().catch(() => {});
   } catch (err) {
+    console.log(err);
     ctx.answerCbQuery().catch(() => {});
   }
 };
