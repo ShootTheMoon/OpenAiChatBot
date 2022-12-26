@@ -84,6 +84,7 @@ const sendCallHandler = async (ctx, input, type) => {
           });
         } else {
           if (!flags[i].flagged) {
+            console.log(request, ctx.update.callback_query.from.id);
             generateImage(request, model).then((response) => {
               if (response) {
                 sendImageHandler(response, request, ctxQueue[i]);

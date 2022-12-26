@@ -36,7 +36,6 @@ const generateText = async (input) => {
 
 const generateImage = async (input, model) => {
   try {
-    console.log(input);
     const negativePrompt = input.split(":negative ")[1];
     const response = await backOff(async () => {
       const response = await axios.post("https://234hgv23b3b3bv2.stablediffusionapi.com/text2img", {
