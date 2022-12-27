@@ -34,6 +34,26 @@ const generateText = async (input) => {
   }
 };
 
+const generateCode = async (input) => {
+  try {
+    const response = await backOff(async () => {
+      return await openai.createCompletion({
+        model: "code-davinci-002",
+        prompt: input,
+        temperature: 0,
+        max_tokens: 1000,
+        top_p: 1,
+        frequency_penalty: 0.5,
+        presence_penalty: 0.5,
+      });
+    });
+    return response.data.choices;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
 const generateImage = async (input, model) => {
   try {
     const negativePrompt = input.split(":negative ")[1];
@@ -167,4 +187,4 @@ const moderationFilter = async (text) => {
   }
 };
 
-module.exports = { generateText, generateImage, moderationFilter, generateTextToSpeech, generateImage2Image };
+module.exports = { generateText, generateImage, moderationFilter, generateTextToSpeech, generateImage2Image, generateCode };

@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://ea98-2601-5ca-c300-47f0-9dc7-9540-2671-f67b.ngrok.io";
+  serverUrl = "https://c038-2601-5ca-c300-47f0-7541-a356-9a9a-34a8.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -30,7 +30,7 @@ bot.start((ctx) => {
   try {
     ctx
       .reply(
-        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nUse /img followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
+        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nUse /code followed by a problem to generate code for your desired language.\nUse /img followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
         { parse_mode: "Markdown" }
       )
       .catch((err) => console.log(err));
@@ -103,11 +103,35 @@ bot.command(async (ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // if (profanityFilter(input) === true) {
-          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          //   return;
-          // }
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
           sendCallHandler(ctx, input, "text");
+        }
+      }
+    } else if (command.split(" ")[0].toLowerCase() === "/code") {
+      if (chatBlacklistHandler(chatId) != false) {
+        return;
+      }
+      const input = command.slice(6);
+      // Check if command is empty
+      if (!input) {
+        ctx.reply(`*Use /code followed by a problem to generate code for your desired language*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      } else {
+        // Check time restriction
+        const [chatType, timeLeft] = chatHandler(ctx.message.chat);
+        logChat(ctx, input);
+        if (chatType === "group") {
+          ctx.reply(`*Request are limited to 1 request per 15 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else if (chatType === "private") {
+          ctx.reply(`*Request are limited to 1 request per 30 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+        } else {
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
+          sendCallHandler(ctx, input, "code");
         }
       }
     } else if (command.split(" ")[0].toLowerCase() === "/img") {
@@ -127,10 +151,10 @@ bot.command(async (ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 45 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // if (profanityFilter(input) === true) {
-          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          //   return;
-          // }
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
           ctx
             .reply('*Choose an image style from below*\n\n_To add a negative prompt, at the END of your depiction add ":negative" followed what you wanted to exclude_', {
               parse_mode: "Markdown",
@@ -164,10 +188,10 @@ bot.command(async (ctx) => {
         } else if (chatType === "private") {
           ctx.reply(`*Request are limited to 1 request per 45 seconds *(${timeLeft}s remaining)\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
         } else {
-          // if (profanityFilter(input) === true) {
-          //   ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
-          //   return;
-          // }
+          if (profanityFilter(input) === true) {
+            ctx.reply(`"_Given text violates OpenAI's Content Policy_"\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+            return;
+          }
           ctx
             .reply("_Choose voice options below_", {
               parse_mode: "Markdown",

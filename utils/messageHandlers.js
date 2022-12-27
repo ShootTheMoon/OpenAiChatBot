@@ -1,6 +1,6 @@
 const fs = require("fs");
 const axios = require("axios");
-const { generateImage, generateText, moderationFilter, generateTextToSpeech, generateImage2Image } = require("./generate");
+const { generateImage, generateText, moderationFilter, generateTextToSpeech, generateImage2Image, generateCode } = require("./generate");
 const { addToProfanityList } = require("./profanityFilter");
 const { getFooterAd } = require("./footerHandlers");
 
@@ -16,6 +16,8 @@ const reqQueueImg = [];
 const ctxQueueImg = [];
 const reqQueueAud = [];
 const ctxQueueAud = [];
+const reqQueueCode = [];
+const ctxQueueCode = [];
 
 const sendCallHandler = async (ctx, input, type) => {
   footerAd = getFooterAd();
@@ -54,6 +56,33 @@ const sendCallHandler = async (ctx, input, type) => {
               sendAudioHandler(response, cQueue[i][0]);
             });
           }
+        }
+      }
+    }
+  } else if (type === "code") {
+    reqQueueCode.push(input);
+    ctxQueueCode.push(ctx);
+    if (reqQueueCode.length >= 1) {
+      const reqQueue = [...reqQueueCode];
+      const ctxQueue = [...ctxQueueCode];
+      reqQueueCode.length = 0;
+      ctxQueueCode.length = 0;
+      const flags = await moderationFilter(reqQueue);
+      const rQueue = [];
+      const cQueue = [];
+      for (let i = 0; i < reqQueue.length; i++) {
+        if (!flags[i].flagged) {
+          rQueue.push(reqQueue[i]);
+          cQueue.push(ctxQueue[i]);
+        } else {
+          addToProfanityList(reqQueue[i]);
+          sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+        }
+      }
+      if (rQueue.length > 0) {
+        const resArray = await generateCode(rQueue);
+        for (let i = 0; i < resArray.length; i++) {
+          sendTextHandler(cQueue[i], resArray[i].text);
         }
       }
     }
@@ -127,7 +156,6 @@ const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
         console.log("again", tries);
         if (tries < 2) {
           setTimeout(async () => {
-            console.log(photo);
             sendImageHandler(photo, caption, ctx, ++tries);
           }, 15000);
         }
