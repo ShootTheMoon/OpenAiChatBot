@@ -176,7 +176,6 @@ bot.command(async (ctx) => {
       if (chatBlacklistHandler(chatId) != false) {
         return;
       }
-      console.log(command);
       const input = command.slice(6);
       if (!input) {
         ctx.reply(`*Use /asks followed by a question or statement to receive an AI-generated response via speech*\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
