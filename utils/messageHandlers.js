@@ -3,6 +3,7 @@ const axios = require("axios");
 const { generateImage, generateText, moderationFilter, generateTextToSpeech, generateImage2Image, generateCode } = require("./generate");
 const { addToProfanityList } = require("./profanityFilter");
 const { getFooterAd } = require("./footerHandlers");
+const { response } = require("express");
 
 let footerAd = getFooterAd();
 
@@ -82,7 +83,7 @@ const sendCallHandler = async (ctx, input, type) => {
       if (rQueue.length > 0) {
         const resArray = await generateCode(rQueue);
         for (let i = 0; i < resArray.length; i++) {
-          sendTextHandler(cQueue[i], resArray[i].text);
+          sendCodeHandler(cQueue[i], resArray[i].text);
         }
       }
     }
@@ -167,6 +168,43 @@ const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
     ctx.answerCbQuery().catch(() => {});
   }
 };
+
+const sendCodeHandler = (ctx, response) => {
+  try {
+    let start = 0;
+    let end = MAX_SIZE;
+    const messageId = ctx.message.message_id;
+    if (response === "_Given text violates OpenAI's Content Policy_") {
+      ctx.reply(`${response}\n\n${footerAd}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      return;
+    }
+    if (response) {
+      const msgAmount = response.length / MAX_SIZE;
+      for (let i = 0; i < msgAmount; i++) {
+        setTimeout(() => {
+          ctx
+            .reply(`${response.slice(start, end)}`, {
+              disable_web_page_preview: true,
+              reply_to_message_id: messageId,
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+          start = start + MAX_SIZE;
+          end = end + MAX_SIZE;
+        }, 100);
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    try {
+      ctx.answerCbQuery().catch((err) => {
+        console.log(err);
+      });
+    } catch (err) {}
+  }
+};
+
 // Send out text responses
 const sendTextHandler = (ctx, response) => {
   try {

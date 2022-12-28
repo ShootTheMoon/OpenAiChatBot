@@ -36,17 +36,19 @@ const generateText = async (input) => {
 
 const generateCode = async (input) => {
   try {
+    console.log(input);
     const response = await backOff(async () => {
       return await openai.createCompletion({
         model: "code-davinci-002",
         prompt: input,
-        temperature: 0,
+        temperature: 0.5,
         max_tokens: 1000,
         top_p: 1,
         frequency_penalty: 0.5,
         presence_penalty: 0.5,
       });
     });
+    console.log(response.data.choices);
     return response.data.choices;
   } catch (err) {
     console.log(err);
