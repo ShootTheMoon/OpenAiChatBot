@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://7b2b-2601-5ca-c300-47f0-7541-a356-9a9a-34a8.ngrok.io";
+  serverUrl = "https://9479-45-85-144-199.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -164,7 +164,15 @@ bot.command(async (ctx) => {
                 inline_keyboard: [
                   [
                     { text: "Standard", callback_data: "standardStyle" },
+                    { text: "Midjourney", callback_data: "midjourney" },
+                  ],
+                  [
                     { text: "Anime", callback_data: "animeStyle" },
+                    { text: "Redshift", callback_data: "redshift" },
+                  ],
+                  [
+                    { text: "Arcane", callback_data: "arcane" },
+                    { text: "Dreamlike", callback_data: "dreamlike" },
                   ],
                 ],
               },
@@ -347,6 +355,122 @@ bot.action("animeStyle", (ctx) => {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
         input = "anything-v3.0 " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      }
+    } else {
+      ctx.answerCbQuery().catch((err) => {});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+bot.action("midjourney", (ctx) => {
+  try {
+    const messageId = ctx.update.callback_query.message.message_id;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery().catch((err) => {});
+    } else if (from === creator) {
+      if (ctx.update.callback_query.message.reply_to_message.caption) {
+        let input = ctx.update.callback_query.message.reply_to_message.caption;
+        input = input.slice(5);
+        input = "midjourney " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      } else {
+        let input = ctx.update.callback_query.message.reply_to_message.text;
+        input = input.slice(5);
+        input = "midjourney " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      }
+    } else {
+      ctx.answerCbQuery().catch((err) => {});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+bot.action("redshift", (ctx) => {
+  try {
+    const messageId = ctx.update.callback_query.message.message_id;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery().catch((err) => {});
+    } else if (from === creator) {
+      if (ctx.update.callback_query.message.reply_to_message.caption) {
+        let input = ctx.update.callback_query.message.reply_to_message.caption;
+        input = input.slice(5);
+        input = "redshift-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      } else {
+        let input = ctx.update.callback_query.message.reply_to_message.text;
+        input = input.slice(5);
+        input = "redshift-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      }
+    } else {
+      ctx.answerCbQuery().catch((err) => {});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+bot.action("arcane", (ctx) => {
+  try {
+    const messageId = ctx.update.callback_query.message.message_id;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery().catch((err) => {});
+    } else if (from === creator) {
+      if (ctx.update.callback_query.message.reply_to_message.caption) {
+        let input = ctx.update.callback_query.message.reply_to_message.caption;
+        input = input.slice(5);
+        input = "arcane-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      } else {
+        let input = ctx.update.callback_query.message.reply_to_message.text;
+        input = input.slice(5);
+        input = "arcane-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      }
+    } else {
+      ctx.answerCbQuery().catch((err) => {});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+bot.action("dreamlike", (ctx) => {
+  try {
+    const messageId = ctx.update.callback_query.message.message_id;
+    const from = ctx.update.callback_query.from.id;
+    const creator = ctx.update.callback_query.message.reply_to_message.from.id;
+    if (chatBlacklistHandler(ctx.update.callback_query.message.chat.id) != false) {
+      ctx.answerCbQuery().catch((err) => {});
+    } else if (from === creator) {
+      if (ctx.update.callback_query.message.reply_to_message.caption) {
+        let input = ctx.update.callback_query.message.reply_to_message.caption;
+        input = input.slice(5);
+        input = "dreamlike-diffusion " + input;
+        sendCallHandler(ctx, input, "image");
+        ctx.deleteMessage(messageId).catch((err) => console.log(err));
+      } else {
+        let input = ctx.update.callback_query.message.reply_to_message.text;
+        input = input.slice(5);
+        input = "dreamlike-diffusion " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
