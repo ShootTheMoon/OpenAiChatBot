@@ -110,11 +110,10 @@ const sendCallHandler = async (ctx, input, type) => {
                   sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
                 }
               })
-              .catch((err) => console.log(err));
+              .catch((err) => {});
           });
         } else {
           if (!flags[i].flagged) {
-            console.log(request, ctx.update.callback_query.from.id);
             generateImage(request, model).then((response) => {
               if (response) {
                 sendImageHandler(response, request, ctxQueue[i]);
@@ -146,7 +145,14 @@ const sendCallHandler = async (ctx, input, type) => {
 
 const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
   try {
-    const callbackType = ctx.update.callback_query.data;
+    photo = photo.replace("http:\\", "https:\\");
+    // const writeStream = fs.createWriteStream(`./urls/${photo}.txt`);
+    // writeStream.write(photo);
+    // writeStream.end();
+    // const callbackType = ctx.update.callback_query.data;
+    // fs.readFileSync(`./urls/${photo}.txt`, "utf-8", (data) => {
+    //   photo = data;
+    // });
     ctx
       .replyWithPhoto(photo, {
         parse_mode: "Markdown",
@@ -157,6 +163,7 @@ const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
         console.log("again", tries);
         if (tries < 2) {
           setTimeout(async () => {
+            console.log(photo);
             sendImageHandler(photo, caption, ctx, ++tries);
           }, 15000);
         }

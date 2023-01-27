@@ -77,6 +77,7 @@ const generateImage = async (input, model) => {
       return response;
     });
     if (response.data.status === "queued") {
+      console.log(response.data);
       return `http://moon-labs-stable-diffusion.s3.amazonaws.com/generations/${response.data.fileId}-0.png`;
     } else if (response.data.status === "error") {
       console.log(response.data);
