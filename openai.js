@@ -18,7 +18,7 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://9479-45-85-144-199.ngrok.io";
+  serverUrl = "https://f41a-2601-589-4d80-16d0-ca4-6982-2b05-82a8.ngrok.io";
 }
 
 let footerAd = getFooterAd();
@@ -30,7 +30,7 @@ bot.start((ctx) => {
   try {
     ctx
       .reply(
-        "*Welcome to the the OpenAi ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nTo use /code, please read_ [this guide](https://beta.openai.com/docs/guides/code/introduction)_ on how to effective use code completion.\nUse /img followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/OpenAIERC",
+        "*Welcome to the the EvolveAI ERC20 Bot!*\n\n_Use /ask followed by a question or statement to receive an AI-generated response via text.\nTo use /code, please read_ [this guide](https://beta.openai.com/docs/guides/code/introduction)_ on how to effective use code completion.\nUse /img followed by a depiction to receive an AI-generated image.\nUse /asks followed by a question or statement to receive an AI-generated response via speech.\nUse /speak followed text to convert text into speech.\nUse /askstats to request basic metrics regarding bot usage._\n\nTelegram: t.me/OpenAIERC \nTwitter: https://twitter.com/EvolveAIERC",
         { parse_mode: "Markdown" }
       )
       .catch((err) => console.log(err));

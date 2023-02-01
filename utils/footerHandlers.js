@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const openAiAd = "[Join OpenAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0x670b681d8acca37d7e12c43f9d5114f4543e50ff) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6A6AA13393B7d1100c00a57c76c39e8B6C835041)";
+const openAiAd = "[Join EvolveAI](http://t.me/OpenAIERC) | [Chart](https://www.dextools.io/app/en/ether/pair-explorer/0xe2bf84f6e15097378144b7fdcff20da1fab71b14) | [Buy](https://app.uniswap.org/#/swap?outputCurrency=0x6fbc20483b53cea47839bb8e171abd6d67c3c696)";
 
 
 const getFooterAd = () => {
