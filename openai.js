@@ -254,7 +254,7 @@ bot.command(async (ctx) => {
       const stats = getMetrics(chatId);
       ctx.reply(`${stats}`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     } else if (command.split(" ")[0].toLowerCase() === "/askcreator") {
-      ctx.reply(`@MoonRocket23`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
+      ctx.reply(`@MoonDan1337`, { parse_mode: "Markdown", disable_web_page_preview: true, reply_to_message_id: messageId }).catch((err) => console.log(err));
     } else if (command.split(" ")[0].toLowerCase() === "/askblacklist" && ctx.message.from.id === moonsId) {
       const group = command.slice(14);
       const res = blacklistGroup(group);
