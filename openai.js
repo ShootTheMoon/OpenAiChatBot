@@ -37,15 +37,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-// app.listen(4200, () => {
-//   console.log("Listening on port " + 4200);
-// });
+app.listen(4200, () => {
+  console.log("Listening on port " + 4200);
+});
 
-// app.post("/webhook", (req, res) => {
-//   if (req.body.id) {
-//     sendWebhookImg(req.body.id, req.body.imgUrl);
-//   }
-// });
+app.post("/webhook", (req, res) => {
+  if (req.body.id) {
+    console.log(req.body.id);
+    sendWebhookImg(req.body.id, req.body.imgUrl);
+  }
+});
 
 // On /start
 bot.start((ctx) => {
