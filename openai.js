@@ -99,8 +99,8 @@ bot.command(async (ctx) => {
       //           reply_markup: {
       //             inline_keyboard: [
       //               [
-      //                 { text: "Standard", callback_data: "standardStyle" },
-      //                 { text: "Anime", callback_data: "animeStyle" },
+      //                 { text: "Standard", callback_data: "photreal" },
+      //                 { text: "Anime", callback_data: "ani-punk" },
       //               ],
       //             ],
       //           },
@@ -186,16 +186,16 @@ bot.command(async (ctx) => {
               reply_markup: {
                 inline_keyboard: [
                   [
-                    { text: "Standard", callback_data: "standardStyle" },
+                    { text: "Realistic", callback_data: "photreal" },
                     { text: "Open Journey", callback_data: "openjourney" },
                   ],
                   [
-                    { text: "Anime", callback_data: "animeStyle" },
-                    { text: "Redshift", callback_data: "redshift" },
+                    { text: "Anime Punk", callback_data: "ani-punk" },
+                    { text: "Avatar", callback_data: "avatar" },
                   ],
                   [
-                    { text: "Arcane", callback_data: "arcane" },
-                    { text: "Dreamlike", callback_data: "dreamlike" },
+                    { text: "Dream Shaper", callback_data: "dream-shaper" },
+                    { text: "Snythwave", callback_data: "synth-wave" },
                   ],
                 ],
               },
@@ -360,7 +360,7 @@ bot.action("femaleVoice", (ctx) => {
 });
 
 // Animated diffusion model
-bot.action("animeStyle", (ctx) => {
+bot.action("ani-punk", (ctx) => {
   try {
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
@@ -371,13 +371,13 @@ bot.action("animeStyle", (ctx) => {
       if (ctx.update.callback_query.message.reply_to_message.caption) {
         let input = ctx.update.callback_query.message.reply_to_message.caption;
         input = input.slice(5);
-        input = "anything-v3.0 " + input;
+        input = "ani-punk " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
-        input = "anything-v3.0 " + input;
+        input = "ani-punk " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
@@ -418,7 +418,7 @@ bot.action("openjourney", (ctx) => {
   }
 });
 
-bot.action("redshift", (ctx) => {
+bot.action("avatar", (ctx) => {
   try {
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
@@ -429,13 +429,13 @@ bot.action("redshift", (ctx) => {
       if (ctx.update.callback_query.message.reply_to_message.caption) {
         let input = ctx.update.callback_query.message.reply_to_message.caption;
         input = input.slice(5);
-        input = "redshift-diffusion " + input;
+        input = "avatar " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
-        input = "redshift-diffusion " + input;
+        input = "avatar " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
@@ -447,7 +447,7 @@ bot.action("redshift", (ctx) => {
   }
 });
 
-bot.action("arcane", (ctx) => {
+bot.action("dream-shaper", (ctx) => {
   try {
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
@@ -458,13 +458,13 @@ bot.action("arcane", (ctx) => {
       if (ctx.update.callback_query.message.reply_to_message.caption) {
         let input = ctx.update.callback_query.message.reply_to_message.caption;
         input = input.slice(5);
-        input = "arcane-diffusion " + input;
+        input = "dream-shaper " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
-        input = "arcane-diffusion " + input;
+        input = "dream-shaper " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
@@ -476,7 +476,7 @@ bot.action("arcane", (ctx) => {
   }
 });
 
-bot.action("dreamlike", (ctx) => {
+bot.action("synth-wave", (ctx) => {
   try {
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
@@ -487,13 +487,13 @@ bot.action("dreamlike", (ctx) => {
       if (ctx.update.callback_query.message.reply_to_message.caption) {
         let input = ctx.update.callback_query.message.reply_to_message.caption;
         input = input.slice(5);
-        input = "dreamlike-diffusion " + input;
+        input = "synth-wave " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
-        input = "dreamlike-diffusion " + input;
+        input = "synth-wave " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }
@@ -506,7 +506,7 @@ bot.action("dreamlike", (ctx) => {
 });
 
 // Normal diffusion model
-bot.action("standardStyle", (ctx) => {
+bot.action("photreal", (ctx) => {
   try {
     const chat = ctx.update.callback_query.message.chat;
     const messageId = ctx.update.callback_query.message.message_id;
@@ -518,13 +518,13 @@ bot.action("standardStyle", (ctx) => {
       if (ctx.update.callback_query.message.reply_to_message.caption) {
         let input = ctx.update.callback_query.message.reply_to_message.caption;
         input = input.slice(5);
-        input = "analog-diffusion " + input;
+        input = "photreal " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
-        input = "analog-diffusion " + input;
+        input = "photreal " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }

@@ -57,8 +57,13 @@ const generateCode = async (input) => {
 };
 
 const generateImage = async (input, model) => {
+  if (model == "avatar") input += ", avatarart style";
+  if (model == "synth-wave") input += ",snthwve style, nvinkpunk";
   try {
     const negativePrompt = input.split(":negative ")[1];
+
+    if (model == "ani-punk") negativePrompt += ",out of focus, scary, creepy, evil, disfigured, missing limbs, ugly, gross, missing fingers";
+    if (model == "babes") negativePrompt += ",freckles";
     const response = await backOff(async () => {
       const response = await axios.post("https://stablediffusionapi.com/api/v1/enterprise/text2img", {
         key: "7qk2lvgma0g106",
