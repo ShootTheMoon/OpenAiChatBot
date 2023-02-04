@@ -12,6 +12,7 @@ app.use(bodyParser.json());
 
 app.post("*", (req, res) => {
   if (req.body.status == "success") {
+    console.log(req.body.status);
     axios.post("http://localhost:4200/webhook/", { id: req.body.meta.file_prefix, imgUrl: req.body.output });
   }
 });
