@@ -7,7 +7,7 @@ const util = require("util");
 require("dotenv").config();
 const { v4: uuidv4 } = require("uuid");
 
-const { OPENAI_KEY, STABILITY_AI_KEY } = process.env;
+const { OPENAI_KEY } = process.env;
 const configuration = new Configuration({
   apiKey: OPENAI_KEY,
 });
@@ -60,8 +60,8 @@ const generateImage = async (input, model) => {
   try {
     const negativePrompt = input.split(":negative ")[1];
     const response = await backOff(async () => {
-      const response = await axios.post("https://234hgv23b3b3bv2.stablediffusionapi.com/text2img", {
-        key: "rdrv398457321!@#___",
+      const response = await axios.post("https://stablediffusionapi.com/api/v1/enterprise/text2img", {
+        key: "7qk2lvgma0g106",
         prompt: input,
         negative_prompt: negativePrompt,
         width: "512",
@@ -70,21 +70,18 @@ const generateImage = async (input, model) => {
         num_inference_steps: 20,
         seed: null,
         guidance_scale: 7.5,
-        webhook: null,
+        webhook: "https://moonlabs-bots.site/webhook/",
         track_id: null,
         model_id: model,
       });
       return response;
     });
-    if (response.data.status === "queued") {
-      console.log(response.data);
-      return `http://moon-labs-stable-diffusion.s3.amazonaws.com/generations/${response.data.fileId}-0.png`;
-    } else if (response.data.status === "error") {
-      console.log(response.data);
-      return false;
-    } else {
-      return `http://moon-labs-stable-diffusion.s3.amazonaws.com/generations/${response.data.images[0]}`;
+    if ((response.data.status = "success")) {
+      return [response.data.output, false];
+    } else if ((response.data.status = "success")) {
+      return [response.data.meta.file_prefix, true];
     }
+    return [false, false];
   } catch (err) {
     console.log(err);
     return false;

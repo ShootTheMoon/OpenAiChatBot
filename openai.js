@@ -2,6 +2,10 @@
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const fs = require("fs");
+const express = require("express");
+const axios = require("axios");
+const cors = require("cors");
+var bodyParser = require("body-parser");
 
 const moonsId = 2056782424;
 
@@ -10,7 +14,7 @@ const { TOKEN, SERVER_URL, BUILD, PORT } = process.env;
 
 // Function Imports
 const { chatHandler, getMetrics, blacklistGroup, chatBlacklistHandler, logChat } = require("./utils/groupHandlers");
-const { sendCallHandler } = require("./utils/messageHandlers");
+const { sendCallHandler, sendWebhookImg } = require("./utils/messageHandlers");
 const { profanityFilter } = require("./utils/profanityFilter");
 const { setFooterAd, toggleFooterAd, getFooterAd } = require("./utils/footerHandlers");
 const { broadcast } = require("./utils/broadcastMessage");
@@ -18,12 +22,30 @@ const { broadcast } = require("./utils/broadcastMessage");
 
 let serverUrl = SERVER_URL;
 if (BUILD == "Test") {
-  serverUrl = "https://f41a-2601-589-4d80-16d0-ca4-6982-2b05-82a8.ngrok.io";
+  serverUrl = "https://8424-2601-589-4d80-16d0-f409-d6cc-170d-a436.ngrok.io";
 }
 
 let footerAd = getFooterAd();
 
 const bot = new Telegraf(TOKEN);
+const app = express();
+app.use(cors());
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
+
+app.listen(4200, () => {
+  console.log("Listening on port " + 4200);
+});
+
+app.post("/webhook", (req, res) => {
+  if (req.body.id) {
+    sendWebhookImg(req.body.id, req.body.imgUrl);
+  }
+});
 
 // On /start
 bot.start((ctx) => {
@@ -164,7 +186,7 @@ bot.command(async (ctx) => {
                 inline_keyboard: [
                   [
                     { text: "Standard", callback_data: "standardStyle" },
-                    { text: "Midjourney", callback_data: "midjourney" },
+                    { text: "Open Journey", callback_data: "openjourney" },
                   ],
                   [
                     { text: "Anime", callback_data: "animeStyle" },
@@ -366,7 +388,7 @@ bot.action("animeStyle", (ctx) => {
   }
 });
 
-bot.action("midjourney", (ctx) => {
+bot.action("openjourney", (ctx) => {
   try {
     const messageId = ctx.update.callback_query.message.message_id;
     const from = ctx.update.callback_query.from.id;
@@ -377,13 +399,13 @@ bot.action("midjourney", (ctx) => {
       if (ctx.update.callback_query.message.reply_to_message.caption) {
         let input = ctx.update.callback_query.message.reply_to_message.caption;
         input = input.slice(5);
-        input = "midjourney " + input;
+        input = "openjourney " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       } else {
         let input = ctx.update.callback_query.message.reply_to_message.text;
         input = input.slice(5);
-        input = "midjourney " + input;
+        input = "openjourney " + input;
         sendCallHandler(ctx, input, "image");
         ctx.deleteMessage(messageId).catch((err) => console.log(err));
       }

@@ -20,6 +20,18 @@ const ctxQueueAud = [];
 const reqQueueCode = [];
 const ctxQueueCode = [];
 
+// Webhook Queue
+const imgWebhookQueue = [];
+
+const sendWebhookImg = async (id, imgUrl) => {
+  for (let i = 0; i < imgWebhookQueue.length; i++) {
+    if (imgWebhookQueue[i][0] == id) {
+      sendImageHandler(imgUrl, imgWebhookQueue[i][1], imgWebhookQueue[i][2]);
+      imgWebhookQueue.splice(i, 1);
+    }
+  }
+};
+
 const sendCallHandler = async (ctx, input, type) => {
   footerAd = getFooterAd();
   if (type === "text" || type === "aiaudio") {
@@ -95,35 +107,18 @@ const sendCallHandler = async (ctx, input, type) => {
       const ctxQueue = [...ctxQueueImg];
       reqQueueImg.length = 0;
       ctxQueueImg.length = 0;
-      const flags = await moderationFilter(reqQueue);
       for (let i = 0; i < reqQueue.length; i++) {
         const model = reqQueue[i].split(" ")[0];
         const request = reqQueue[i].slice(model.length + 1);
-        if (ctxQueue[i].update.callback_query.message.reply_to_message.caption) {
-          const url = ctxQueue[i].update.callback_query.message.reply_to_message.photo[0].file_id;
-          ctxQueue[i].telegram.getFileLink(url).then((img) => {
-            generateImage2Image(request, model, img.href)
-              .then((response) => {
-                if (response) {
-                  sendImageHandler(response, request, ctxQueue[i]);
-                } else {
-                  sendTextHandlerMoon(ctxQueue[i], "Error with image generation");
-                }
-              })
-              .catch((err) => {});
-          });
-        } else {
-          if (!flags[i].flagged) {
-            generateImage(request, model).then((response) => {
-              if (response) {
-                sendImageHandler(response, request, ctxQueue[i]);
-              }
-            });
-          } else {
-            addToProfanityList(reqQueue[i]);
-            sendTextHandler(ctxQueue[i], "_Given text violates OpenAI's Content Policy_");
+        generateImage(request, model).then((response) => {
+          console.log(response);
+          if (response[0]) {
+            if (response[1]) {
+              imgWebhookQueue.push([response[0], request, ctxQueue[i]]);
+            }
+            sendImageHandler(response[0][0], request, ctxQueue[i]);
           }
-        }
+        });
       }
     }
   } else if (type === "audio") {
@@ -143,16 +138,8 @@ const sendCallHandler = async (ctx, input, type) => {
   }
 };
 
-const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
+const sendImageHandler = async (photo, caption, ctx) => {
   try {
-    photo = photo.replace("http:\\", "https:\\");
-    // const writeStream = fs.createWriteStream(`./urls/${photo}.txt`);
-    // writeStream.write(photo);
-    // writeStream.end();
-    // const callbackType = ctx.update.callback_query.data;
-    // fs.readFileSync(`./urls/${photo}.txt`, "utf-8", (data) => {
-    //   photo = data;
-    // });
     ctx
       .replyWithPhoto(photo, {
         parse_mode: "Markdown",
@@ -160,14 +147,7 @@ const sendImageHandler = async (photo, caption, ctx, tries = 0) => {
         reply_to_message_id: ctx.update.callback_query.message.reply_to_message.message_id,
       })
       .catch((err) => {
-        console.log("again", tries);
-        if (tries < 2) {
-          setTimeout(async () => {
-            console.log(photo);
-            sendImageHandler(photo, caption, ctx, ++tries);
-          }, 15000);
-        }
-        ctx.answerCbQuery().catch(() => {});
+        console.log(err);
       });
     ctx.answerCbQuery().catch(() => {});
   } catch (err) {
@@ -318,40 +298,6 @@ const sendTextHandler = (ctx, response) => {
     } catch (err) {}
   }
 };
-const sendTextHandlerMoon = (ctx, response) => {
-  try {
-    let start = 0;
-    let end = MAX_SIZE;
-    if (response === "_Given text violates OpenAI's Content Policy_") {
-      ctx.reply(`${response}\n\n${footerAd}`, { chat_id: moonsId, parse_mode: "Markdown", disable_web_page_preview: true }).catch((err) => console.log(err));
-      return;
-    }
-    if (response) {
-      const msgAmount = response.length / MAX_SIZE;
-      for (let i = 0; i < msgAmount; i++) {
-        setTimeout(() => {
-          ctx
-            .reply(`${response.slice(start, end).replace("_", "_").replace("*", "*").replace("[", "[")}\n\n${footerAd}`, {
-              chat_id: moonsId,
-              parse_mode: "Markdown",
-              disable_web_page_preview: true,
-            })
-            .catch(() =>
-              ctx.reply(`${response.slice(start, end)}`, {
-                chat_id: moonsId,
-                disable_web_page_preview: true,
-              })
-            )
-            .catch(() => {});
-          start = start + MAX_SIZE;
-          end = end + MAX_SIZE;
-        }, 100);
-      }
-    }
-  } catch (err) {
-    ctx.answerCbQuery().catch(() => {});
-  }
-};
 
 const sendAudioHandler = (audio, ctx) => {
   try {
@@ -370,4 +316,4 @@ const sendAudioHandler = (audio, ctx) => {
   }
 };
 
-module.exports = { sendTextHandler, sendImageHandler, sendCallHandler };
+module.exports = { sendTextHandler, sendImageHandler, sendCallHandler, sendWebhookImg };
