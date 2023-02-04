@@ -77,6 +77,7 @@ const generateImage = async (input, model) => {
       return response;
     });
     if ((response.data.status = "success")) {
+      console.log(response.data);
       return [response.data.output, false];
     } else if ((response.data.status = "success")) {
       return [response.data.meta.file_prefix, true];
