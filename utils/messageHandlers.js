@@ -116,7 +116,8 @@ const sendCallHandler = async (ctx, input, type) => {
             if (response[1]) {
               imgWebhookQueue.push([response[0], request, ctxQueue[i]]);
             }
-            sendImageHandler(response[0][0], request, ctxQueue[i]);
+            // sendImageHandler(response[0][0], request, ctxQueue[i]);
+            imgWebhookQueue.push([response[0], request, ctxQueue[i]]);
           }
         });
       }
